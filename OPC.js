@@ -5,6 +5,7 @@ class OPC {
 		this.container = container;
 		this.options = {};
 		this.variables = [];
+		this.minimized = false;
 	}
 
 	static slider(variableName, value, min = 0, max = null, step = null){
@@ -32,6 +33,15 @@ class OPC {
 
 	static set = function (variableName, value){
 		OPC.options[variableName].value = value;
+	}
+
+	static minimize = function (){
+		OPC.minimized = true;
+		this.callParentFunction('OPC_minimized', OPC.minimized);
+	}
+	static expand = function (){
+		OPC.minimized = false;
+		this.callParentFunction('OPC_minimized', OPC.minimized);
 	}
 
 	static callParentFunction = function (functionName, arg = {}) {
