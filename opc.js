@@ -14,7 +14,7 @@ class OPC {
 		let url = new URL(document.location.href);
 		if (url && url.searchParams.has(variableName)){
 			//if found, ignore requested value, replace with URL param
-			value = url.searchParams.get(variableName);
+			value = +url.searchParams.get(variableName);
 		}
 
 
