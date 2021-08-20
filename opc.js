@@ -4,11 +4,20 @@ class OPC {
 	constructor(container = null) {
 		this.container = container;
 		this.options = {};
+		this.existingOptions = {};
 		this.variables = [];
 		this.minimized = false;
 	}
 
 	static slider(variableName, value, min = 0, max = null, step = null){
+		//check existing params
+		let url = new URL(document.location.href);
+		if (url && url.searchParams.has(variableName)){
+			//if found, ignore requested value, replace with URL param
+			value = url.searchParams.get(variableName);
+		}
+
+
 		max = max == null? value*2: max;
 		step = step == null? value/10: step;
 
