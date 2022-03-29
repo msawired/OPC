@@ -42,6 +42,9 @@ class OPC {
 
 	static set = function (variableName, value){
 		OPC.options[variableName].value = value;
+		if (typeof window.parameterChanged == 'function') {
+			window.parameterChanged(variableName, value);
+		}
 	}
 
 	static minimize = function (){
@@ -54,14 +57,12 @@ class OPC {
 	}
 
 	static callParentFunction = function (functionName, arg = {}) {
-		//this.console.log(arg);
-		// below might fail if arg can not be cloned to be sent over.
-		// console.profile('callParentFunction');
+		console.log(arg);
 		try {
 			//try sending as is
 			window.parent.postMessage({
 				'messageType': functionName,
-				'message': window.OP_makeTransmittable(arg, 0)
+				'message': arg
 			}, '*');
 		} catch (error) {
 			console.log('postMessage', error);
