@@ -88,7 +88,7 @@ class OPC {
 		this.callParentFunction('OPC', this.options[variableName]);
 		return true;
 	} 
-	static color(variableName, value = '#333') {
+	static color(variableName, value = '#333333') {
 		//check existing params
 		let url = new URL(document.location.href);
 		if (url && url.searchParams.has(variableName)) {
