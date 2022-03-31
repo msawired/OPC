@@ -64,6 +64,30 @@ class OPC {
 		return true;
 	} 
 
+	static palette(variableName, value, options) {
+		//check existing params
+		let url = new URL(document.location.href);
+		if (url && url.searchParams.has(variableName)) {
+			//if found, ignore requested value, replace with URL param
+			value = url.searchParams.get(variableName);
+		}
+
+		this.options[variableName] = {
+			name: variableName,
+			type: 'palette',
+			value: value,
+			options: options
+		}
+		this.callParentFunction('OPC', this.options[variableName]);
+		//delete existing
+		Object.defineProperty(window, variableName, {
+			get: function () {
+				return OPC.options[variableName].value;
+			}
+		});
+		this.callParentFunction('OPC', this.options[variableName]);
+		return true;
+	} 
 	static color(variableName, value = '#333') {
 		//check existing params
 		let url = new URL(document.location.href);
@@ -87,6 +111,33 @@ class OPC {
 		this.callParentFunction('OPC', this.options[variableName]);
 		return true;
 	} 
+
+	static text(variableName, value, placeholder = null, maxChars = 1000) {
+		//check existing params
+		let url = new URL(document.location.href);
+		if (url && url.searchParams.has(variableName)) {
+			//if found, ignore requested value, replace with URL param
+			value = url.searchParams.get(variableName);
+		}
+
+		this.options[variableName] = {
+			name: variableName,
+			type: 'text',
+			value: value,
+			placeholder: placeholder,
+			max: maxChars
+		}
+		this.callParentFunction('OPC', this.options[variableName]);
+		//delete existing
+		Object.defineProperty(window, variableName, {
+			get: function () {
+				return OPC.options[variableName].value;
+			}
+		});
+		this.callParentFunction('OPC', this.options[variableName]);
+		return true;
+	} 
+	
 
 	static set = function (variableName, value){
 		OPC.options[variableName].value = value;
