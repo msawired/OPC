@@ -4,7 +4,9 @@ This is a helper library that allows sketches on OpenProcessing to provide a UI 
 
 ## Example
 
-Example below will display a range slider that you can change live while playing your sketch. 
+See the full demo on [OpenProcessing](https://openprocessing.org/sketch/1532131).
+
+A simple example below will display a range slider that you can change live while playing your sketch. 
 
 ```
 //var radius = 10; //instead of defining a variable, use below
