@@ -89,7 +89,7 @@ defaultValue: #333333
 Allows user to switch color palette used. Each pallete is an array of colors (HEX values). 'defaultValue' may be set to something else other that the ones provided in the array, however, is not recommended since user will not be able to use it again after changing the pallete.
 
 ```javascript
-OPC.color(variableName, defaultValue, palleteOptions);
+OPC.palette(variableName, defaultValue, palleteOptions);
 ```
 
 **Defaults**
