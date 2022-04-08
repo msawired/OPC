@@ -111,6 +111,7 @@ OPC.palette('palette',
 ## Events
 
 ### parameterChanged(variableName, value)
+
 To get an alert everytime a variable changes, you can create "parameterChanged" function in your sketch. For example, if your sketch requires resizing when user changes a variable, you can use this function to get the alert and make necessary changes.
 
 **Example**
@@ -122,4 +123,24 @@ function parameterChanged(variableName, value) {
         print('Canvas size updated');
     }
 }
+```
+
+## Utilities
+
+### collapse()
+
+Collapses the OPC configurator panel.
+**Example**
+
+```javascript
+OPC.collapse();
+```
+
+### expand()
+
+Expands the OPC configurator panel.
+**Example**
+
+```javascript
+OPC.expand();
 ```

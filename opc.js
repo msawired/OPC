@@ -1,12 +1,8 @@
 class OPC {
 	static options = {};
-	static variables = [];
-	constructor(container = null) {
-		this.container = container;
+	constructor() {
 		this.options = {};
-		this.existingOptions = {};
-		this.variables = [];
-		this.minimized = false;
+		this.collapsed = false;
 	}
 
 	static slider(variableName, value, min = 0, max = null, step = null){
@@ -29,15 +25,7 @@ class OPC {
 			max: max,
 			step: step
 		}
-		this.callParentFunction('OPC', this.options[variableName] );
-		//delete existing
-		Object.defineProperty(window, variableName, {
-			get: function () {
-				return OPC.options[variableName].value;
-			}
-		});
-		this.callParentFunction('OPC', this.options[variableName]);
-		return true;
+		return this.initVariable(this.options[variableName]);
 	} 
 
 	static toggle(variableName, value = true) {
@@ -53,15 +41,7 @@ class OPC {
 			type: 'toggle',
 			value: value
 		}
-		this.callParentFunction('OPC', this.options[variableName]);
-		//delete existing
-		Object.defineProperty(window, variableName, {
-			get: function () {
-				return OPC.options[variableName].value;
-			}
-		});
-		this.callParentFunction('OPC', this.options[variableName]);
-		return true;
+		return this.initVariable(this.options[variableName]);
 	} 
 
 	static palette(variableName, value, options) {
@@ -78,15 +58,7 @@ class OPC {
 			value: value,
 			options: options
 		}
-		this.callParentFunction('OPC', this.options[variableName]);
-		//delete existing
-		Object.defineProperty(window, variableName, {
-			get: function () {
-				return OPC.options[variableName].value;
-			}
-		});
-		this.callParentFunction('OPC', this.options[variableName]);
-		return true;
+		return this.initVariable(this.options[variableName]);
 	} 
 	static color(variableName, value = '#333333') {
 		//check existing params
@@ -101,15 +73,7 @@ class OPC {
 			type: 'color',
 			value: value
 		}
-		this.callParentFunction('OPC', this.options[variableName]);
-		//delete existing
-		Object.defineProperty(window, variableName, {
-			get: function () {
-				return OPC.options[variableName].value;
-			}
-		});
-		this.callParentFunction('OPC', this.options[variableName]);
-		return true;
+		return this.initVariable(this.options[variableName]);
 	} 
 
 	static text(variableName, value, placeholder = null, maxChars = 1000) {
@@ -127,32 +91,38 @@ class OPC {
 			placeholder: placeholder,
 			max: maxChars
 		}
-		this.callParentFunction('OPC', this.options[variableName]);
-		//delete existing
-		Object.defineProperty(window, variableName, {
+		return this.initVariable(this.options[variableName]);
+	} 
+
+	static initVariable = function(option){
+		Object.defineProperty(window, option.name, {
 			get: function () {
-				return OPC.options[variableName].value;
+				return OPC.options[option.name].value;
+			},
+			set: function (value) {
+				OPC.options[option.name].value = value;
+				OPC.callParentFunction('OPC', OPC.options[option.name]);
+				if (typeof window.parameterChanged == 'function') {
+					window.parameterChanged(option.name, value);
+				}
 			}
 		});
-		this.callParentFunction('OPC', this.options[variableName]);
+		this.callParentFunction('OPC', option);
 		return true;
 	} 
 	
 
 	static set = function (variableName, value){
-		OPC.options[variableName].value = value;
-		if (typeof window.parameterChanged == 'function') {
-			window.parameterChanged(variableName, value);
-		}
+		window[variableName] = value;
 	}
 
-	static minimize = function (){
-		OPC.minimized = true;
-		this.callParentFunction('OPC_minimized', OPC.minimized);
+	static collapse = function (){
+		OPC.collapsed = true;
+		OPC.callParentFunction('OPC_collapsed', OPC.collapsed);
 	}
 	static expand = function (){
-		OPC.minimized = false;
-		this.callParentFunction('OPC_minimized', OPC.minimized);
+		OPC.collapsed = false;
+		OPC.callParentFunction('OPC_collapsed', OPC.collapsed);
 	}
 
 	static callParentFunction = function (functionName, arg = {}) {
