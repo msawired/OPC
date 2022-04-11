@@ -48,8 +48,8 @@ class OPC {
 		//check existing params
 		let url = new URL(document.location.href);
 		if (url && url.searchParams.has(variableName)) {
-			//if found, ignore requested value, replace with URL param
-			value = url.searchParams.get(variableName);
+			//Note: query params are all strings, so turn it to array
+			value = url.searchParams.get(variableName).split(',');
 		}
 
 		this.options[variableName] = {
