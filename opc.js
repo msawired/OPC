@@ -93,6 +93,21 @@ class OPC {
 		}
 		return this.initVariable(this.options[variableName]);
 	} 
+	static button(variableName, buttonText) {
+		//check existing params
+		let url = new URL(document.location.href);
+		if (url && url.searchParams.has(variableName)) {
+			//if found, ignore requested value, replace with URL param
+			value = url.searchParams.get(variableName);
+		}
+
+		this.options[variableName] = {
+			name: variableName,
+			type: 'button',
+			value: buttonText
+		}
+		return this.initVariable(this.options[variableName]);
+	} 
 
 	static initVariable = function(option){
 		Object.defineProperty(window, option.name, {
@@ -112,6 +127,23 @@ class OPC {
 	} 
 	
 
+	static set = function (variableName, value){
+		window[variableName] = value;
+	}
+	static buttonPressed = function (variableName, value){
+		OPC.options[variableName].value = value;
+		if (typeof window.buttonPressed == 'function') {
+			window.buttonPressed(variableName, value);
+		}
+		
+	}
+	static buttonReleased = function (variableName, value){
+		OPC.options[variableName].value = value;
+		if (typeof window.buttonReleased == 'function') {
+			window.buttonReleased(variableName, value);
+		}
+		
+	}
 	static set = function (variableName, value){
 		window[variableName] = value;
 	}

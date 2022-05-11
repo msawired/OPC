@@ -72,6 +72,19 @@ OPC.text(variableName, defaultValue, [placeholder]);
 OPC.text('my_text', '', 'Enter Title');
 ```
 
+### Button
+
+Displays a button. You should use buttonPressed and/or buttonReleased events (see below) to detect user interaction. For simple interactions, using buttonReleased function should suffice.
+**buttonText** parameter is used in the button text, and it is also set as the default value for the button variable.
+
+```javascript
+OPC.button(variableName, buttonText);
+//example: OPC.button('myButton', 'Click Me!');
+```
+
+**Default values**
+defaultValue: #333333
+
 ### Color
 
 Displays a single color selector. Uses the native browser color picker, so the interface may vary. Hex values are recommended. Alpha values are not supported.
@@ -124,6 +137,35 @@ function parameterChanged(variableName, value) {
     }
 }
 ```
+
+### buttonPressed([variableName], [value])
+
+To get an alert everytime user presses a button. If you are using multiple buttons, you can differentiate by looking up the variableName. 
+
+**Example**
+
+```javascript
+function buttonPressed(variableName, value) {
+	if (variableName === 'myButton') {
+		print('Button is pressed');
+	}
+}
+```
+
+### buttonReleased([variableName], [value])
+
+To get an alert everytime user releases a pressed a button. If you are using multiple buttons, you can differentiate by looking up the variableName. 
+
+**Example**
+
+```javascript
+function buttonPressed(variableName, value) {
+	if (variableName === 'myButton') {
+		print('Button is released');
+	}
+}
+```
+
 
 ## Utilities
 
