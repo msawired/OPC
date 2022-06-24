@@ -5,7 +5,7 @@ class OPC {
 		this.collapsed = false;
 	}
 
-	static slider(variableName, value, min = 0, max = null, step = null){
+	static slider(value, min = 0, max = null, step = null){
 		//check existing params
 		let url = new URL(document.location.href);
 		if (url && url.searchParams.has(variableName)){
