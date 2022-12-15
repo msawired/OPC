@@ -186,3 +186,12 @@ Expands the OPC configurator panel.
 ```javascript
 OPC.expand();
 ```
+
+### delete(variableName)
+
+Deletes a variable and removes its UI component from the interface.
+**Example**
+
+```javascript
+OPC.delete('myVariable');
+```

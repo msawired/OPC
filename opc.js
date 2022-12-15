@@ -5,17 +5,17 @@ class OPC {
 		this.collapsed = false;
 	}
 
-	static slider(variableName, value, min = 0, max = null, step = null){
+	static slider(variableName, value, min = 0, max = null, step = null) {
 		//check existing params
 		let url = new URL(document.location.href);
-		if (url && url.searchParams.has(variableName)){
+		if (url && url.searchParams.has(variableName)) {
 			//if found, ignore requested value, replace with URL param
 			value = +url.searchParams.get(variableName);
 		}
 
 
-		max = max == null? value*2: max;
-		step = step == null? value/10: step;
+		max = max == null ? value * 2 : max;
+		step = step == null ? value / 10 : step;
 
 		this.options[variableName] = {
 			name: variableName,
@@ -26,14 +26,14 @@ class OPC {
 			step: step
 		}
 		return this.initVariable(this.options[variableName]);
-	} 
+	}
 
 	static toggle(variableName, value = true) {
 		//check existing params
 		let url = new URL(document.location.href);
 		if (url && url.searchParams.has(variableName)) {
 			//if found, ignore requested value, replace with URL param
-			value = +url.searchParams.get(variableName) == 1 ? true: false;
+			value = +url.searchParams.get(variableName) == 1 ? true : false;
 		}
 
 		this.options[variableName] = {
@@ -42,7 +42,7 @@ class OPC {
 			value: value
 		}
 		return this.initVariable(this.options[variableName]);
-	} 
+	}
 
 	static palette(variableName, value, options) {
 		//check existing params
@@ -59,7 +59,7 @@ class OPC {
 			options: options
 		}
 		return this.initVariable(this.options[variableName]);
-	} 
+	}
 	static color(variableName, value = '#333333') {
 		//check existing params
 		let url = new URL(document.location.href);
@@ -74,7 +74,7 @@ class OPC {
 			value: value
 		}
 		return this.initVariable(this.options[variableName]);
-	} 
+	}
 
 	static text(variableName, value, placeholder = null, maxChars = 1000) {
 		//check existing params
@@ -92,7 +92,7 @@ class OPC {
 			max: maxChars
 		}
 		return this.initVariable(this.options[variableName]);
-	} 
+	}
 	static button(variableName, buttonText) {
 		//check existing params
 		let url = new URL(document.location.href);
@@ -107,10 +107,11 @@ class OPC {
 			value: buttonText
 		}
 		return this.initVariable(this.options[variableName]);
-	} 
+	}
 
-	static initVariable = function(option){
+	static initVariable = function (option) {
 		Object.defineProperty(window, option.name, {
+			configurable: true,
 			get: function () {
 				return OPC.options[option.name].value;
 			},
@@ -124,37 +125,44 @@ class OPC {
 		});
 		this.callParentFunction('OPC', option);
 		return true;
-	} 
-	
+	}
 
-	static set = function (variableName, value){
+
+	static set = function (variableName, value) {
 		window[variableName] = value;
 	}
-	static buttonPressed = function (variableName, value){
+	static buttonPressed = function (variableName, value) {
 		OPC.options[variableName].value = value;
 		if (typeof window.buttonPressed == 'function') {
 			window.buttonPressed(variableName, value);
 		}
-		
+
 	}
-	static buttonReleased = function (variableName, value){
+	static buttonReleased = function (variableName, value) {
 		OPC.options[variableName].value = value;
 		if (typeof window.buttonReleased == 'function') {
 			window.buttonReleased(variableName, value);
 		}
-		
+
 	}
-	static set = function (variableName, value){
+	static set = function (variableName, value) {
 		window[variableName] = value;
 	}
 
-	static collapse = function (){
+	static collapse = function () {
 		OPC.collapsed = true;
 		OPC.callParentFunction('OPC_collapsed', OPC.collapsed);
 	}
-	static expand = function (){
+	static expand = function () {
 		OPC.collapsed = false;
 		OPC.callParentFunction('OPC_collapsed', OPC.collapsed);
+	}
+	static delete = function (variableName) {
+		if (OPC.options[variableName]){ 
+			delete OPC.options[variableName];
+			delete window.variableName;
+		}
+		OPC.callParentFunction('OPC_delete', variableName);
 	}
 
 	static callParentFunction = function (functionName, arg = {}) {
