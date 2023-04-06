@@ -44,7 +44,7 @@ class OPC {
 		return this.initVariable(this.options[variableName]);
 	}
 
-	static palette(variableName, value, options) {
+	static palette(variableName, options, value = null) {
 		//check existing params
 		let url = new URL(document.location.href);
 		if (url && url.searchParams.has(variableName)) {
@@ -55,7 +55,7 @@ class OPC {
 		this.options[variableName] = {
 			name: variableName,
 			type: 'palette',
-			value: value,
+			value: value ?? options[0],
 			options: options
 		}
 		return this.initVariable(this.options[variableName]);

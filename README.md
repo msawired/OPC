@@ -30,12 +30,7 @@ Displays a range slider that user can change.
 
 ```js
 OPC.slider(variableName, defaultValue, [min], [max], [step]);
-```
-
-**Example**
-
-```js
-OPC.slider('radius', 10, 1, 100, 1);
+//example: OPC.slider('radius', 10, 1, 100, 1);
 ```
 
 **Defaults**
@@ -64,12 +59,7 @@ Displays a single-line text entry field. Optional placeholder text is displayed 
 
 ```javascript
 OPC.text(variableName, defaultValue, [placeholder]);
-```
-
-**Example**
-
-```javascript
-OPC.text('my_text', '', 'Enter Title');
+//example: OPC.text('my_text', '', 'Enter Title');
 ```
 
 ### Button
@@ -83,7 +73,8 @@ OPC.button(variableName, buttonText);
 ```
 
 **Default values**
-defaultValue: #333333
+
+None
 
 ### Color
 
@@ -95,31 +86,32 @@ OPC.color(variableName, defaultValue);
 ```
 
 **Default values**
+
 defaultValue: #333333
 
 ### Color Palette
 
-Allows user to switch color palette used. Each pallete is an array of colors (HEX values). 'defaultValue' may be set to something else other that the ones provided in the array, however, is not recommended since user will not be able to use it again after changing the pallete.
+Allows user to switch color palette used, by looping through the options given in 'palleteOptions'. Each pallete is an array of colors (HEX values). If 'defaultValue' is not provided, than first item of the array is used as default. 'defaultValue' may be set to something else other that the ones provided in the array, however, it is not recommended since user will not be able to use it again after changing the pallete.
 
 ```javascript
-OPC.palette(variableName, defaultValue, palleteOptions);
+OPC.palette(variableName, palleteOptions, [defaultValue]);
 ```
-
-**Defaults**
-
-None
 
 **Example**
 
 ```javascript
-OPC.palette('palette',
-    ["#eabfcb", "#c191a1", "#a4508b", "#5f0a87", "#2f004f"],
+OPC.palette('currentPalette',
     [
         ["#eabfcb", "#c191a1", "#a4508b", "#5f0a87", "#2f004f"],
         ["#c3dfe0", "#bcd979", "#9dad6f", "#7d6d61", "#5e574d"],
         ["#4464ad", "#a4b0f5", "#f58f29", "#7d4600", "#466995"]
     ]);
 ```
+
+**Defaults**
+
+defaultValue: first option in paletteOptions array
+
 
 ## Events
 
