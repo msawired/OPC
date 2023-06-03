@@ -42,17 +42,29 @@ if (window.OPC || typeof OPC === "function") {
         box-shadow: 2px 2px 4px #999;
         flex-direction: column;
       }
+      #opc-control-panel .opc-control-wrapper {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1em;
+      }
+      #opc-control-panel .opc-control-wrapper:last-child {
+        margin-bottom: 0;
+      }
       #opc-control-panel .opc-control {
         display: flex;
         align-items: center;
-        margin-bottom: 0.7em;
-      }
-      #opc-control-panel .opc-control:last-child {
-        margin-bottom: 0;
+        flex-direction: row;
+        padding: 0 0.5em;
+        min-height: 2em;
       }
       #opc-control-panel .opc-control label {
         flex: 0 0 40%;
         text-transform: uppercase;
+      }
+      #opc-control-panel .opc-description {
+        color: #666;
+        margin-bottom: 0.3em;
+        font-size: 0.9em;
       }
       #opc-control-panel input {
         display: block;
@@ -93,14 +105,29 @@ if (window.OPC || typeof OPC === "function") {
 
   let createId = () => Math.random().toString(36).substring(2, 6);
 
+  let createControlContainer = (description) => {
+    let wrapper = document.createElement("div");
+    wrapper.classList.add("opc-control-wrapper");
+
+    if (description) {
+      let desc = document.createElement("div");
+      desc.classList.add("opc-description");
+      desc.textContent = description;
+      wrapper.appendChild(desc);
+    }
+    let inputContainer = document.createElement("div");
+    inputContainer.classList.add("opc-control");
+    wrapper.appendChild(inputContainer);
+    return [wrapper, inputContainer];
+  };
+
   let _opcCreateSlider = (option, controlsElem) => {
     let id = "slider-" + createId();
-    let container = document.createElement("div");
-    container.classList.add("opc-control");
+    let [wrapper, container] = createControlContainer(option.description);
 
     let label = document.createElement("label");
     label.setAttribute("for", id);
-    label.textContent = option.name;
+    label.textContent = option.label ?? option.name;
 
     const numInput = document.createElement("input");
     numInput.id = "num-" + id;
@@ -136,17 +163,16 @@ if (window.OPC || typeof OPC === "function") {
     container.appendChild(label);
     container.appendChild(numInput);
     container.appendChild(slider);
-    controlsElem.appendChild(container);
+    controlsElem.appendChild(wrapper);
   };
 
   let _opcCreateToggle = (option, controlsElem) => {
     let id = "slider-" + createId();
-    let container = document.createElement("div");
-    container.classList.add("opc-control");
+    let [wrapper, container] = createControlContainer(option.description);
 
     let label = document.createElement("label");
     label.setAttribute("for", id);
-    label.textContent = option.name;
+    label.textContent = option.label ?? option.name;
 
     const toggleButton = document.createElement("input");
     toggleButton.id = id;
@@ -165,17 +191,16 @@ if (window.OPC || typeof OPC === "function") {
 
     container.appendChild(label);
     container.appendChild(toggleButton);
-    controlsElem.appendChild(container);
+    controlsElem.appendChild(wrapper);
   }
 
   let _opcCreateText = (option, controlsElem) => {
     let id = 'text-' + createId();
-    let container = document.createElement("div");
-    container.classList.add("opc-control");
+    let [wrapper, container] = createControlContainer(option.description);
 
     let label = document.createElement("label");
     label.setAttribute("for", id);
-    label.textContent = option.name;
+    label.textContent = option.label ?? option.name;
 
     const textInput = document.createElement("input");
     textInput.id = id;
@@ -196,17 +221,16 @@ if (window.OPC || typeof OPC === "function") {
 
     container.appendChild(label);
     container.appendChild(textInput);
-    controlsElem.appendChild(container);
+    controlsElem.appendChild(wrapper);
   }
 
   let _opcCreateColorPicker = (option, controlsElem) => {
     let id = 'text-' + createId();
-    let container = document.createElement("div");
-    container.classList.add("opc-control");
+    let [wrapper, container] = createControlContainer(option.description);
 
     let label = document.createElement("label");
     label.setAttribute("for", id);
-    label.textContent = option.name;
+    label.textContent = option.label ?? option.name;
 
     const colorInput = document.createElement("input");
     colorInput.id = id;
@@ -220,13 +244,12 @@ if (window.OPC || typeof OPC === "function") {
     // TODO: Implement sync back of color variable. May be tricky for non RGB schemes
     container.appendChild(label);
     container.appendChild(colorInput);
-    controlsElem.appendChild(container);
+    controlsElem.appendChild(wrapper);
   }
 
   let _opcCreateButton = (option, controlsElem) => {
     let id = 'text-' + createId();
-    let container = document.createElement("div");
-    container.classList.add("opc-control");
+    let [wrapper, container] = createControlContainer(option.description);
 
     const buttonElem = document.createElement("input");
     buttonElem.id = id;
@@ -247,24 +270,23 @@ if (window.OPC || typeof OPC === "function") {
     });
 
     container.appendChild(buttonElem);
-    controlsElem.appendChild(container);
+    controlsElem.appendChild(wrapper);
   }
 
   let _opcCreatePalettePicker = (option, controlsElem) => {
     let id = 'text-' + createId();
-    let container = document.createElement("div");
-    container.classList.add("opc-control");
+    let [wrapper, container] = createControlContainer(option.description);
 
     let label = document.createElement("label");
     label.setAttribute("for", id);
-    label.textContent = option.name;
+    label.textContent = option.label ?? option.name;
 
     let selected = option.options.indexOf(option.value);
 
     const paletteElem = document.createElement("div");
     paletteElem.classList.add("opc-palette-container");
     let palettes = [];
-    for (let palette of option.options) {
+    for (let palette of option.options) { // noprotect
       let paletteContainer = document.createElement("div");
       paletteContainer.classList.add("opc-palette");
       if (option.value === palette) {
@@ -275,7 +297,6 @@ if (window.OPC || typeof OPC === "function") {
         colorElem.classList.add("opc-palette-color");
         colorElem.style.backgroundColor = color;
         paletteContainer.append(colorElem);
-        colorElem.addEventListener;
       }
       palettes.push(paletteContainer);
       paletteContainer.addEventListener('click', () => {
@@ -292,7 +313,7 @@ if (window.OPC || typeof OPC === "function") {
     // TODO: Implement sync back of palette variable
     container.appendChild(label);
     container.appendChild(paletteElem);
-    controlsElem.appendChild(container);;
+    controlsElem.appendChild(wrapper);
   }
 
   window.addEventListener('message', (event) => {
