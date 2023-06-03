@@ -6,7 +6,13 @@ if (window.OPC || typeof OPC === "function") {
 
   // Delay the construction of the elements until DOM is loaded
   let delay = (fn) => {
-    document.addEventListener("DOMContentLoaded", fn, false);
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      // In OP, this is loaded after the document is fully loaded, execute immediately
+      fn()
+    } else {
+      // In standalone, wait for the document DOM to load
+      document.addEventListener("DOMContentLoaded", fn, false);
+    }
   }
 
   delay(() => {
