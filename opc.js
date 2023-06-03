@@ -189,45 +189,42 @@ class OPC {
 		return true;
 	}
 
-
-	static set = function (variableName, value) {
+	static set (variableName, value) {
 		window[variableName] = value;
 	}
-	static buttonPressed = function (variableName, value) {
+
+	static buttonPressed (variableName, value) {
 		OPC.options[variableName].value = value;
 		if (typeof window.buttonPressed == 'function') {
 			window.buttonPressed(variableName, value);
 		}
 
 	}
-	static buttonReleased = function (variableName, value) {
+	static buttonReleased (variableName, value) {
 		OPC.options[variableName].value = value;
 		if (typeof window.buttonReleased == 'function') {
 			window.buttonReleased(variableName, value);
 		}
 
 	}
-	static set = function (variableName, value) {
-		window[variableName] = value;
-	}
 
-	static collapse = function () {
+	static collapse () {
 		OPC.collapsed = true;
 		OPC.callParentFunction('OPC_collapsed', OPC.collapsed);
 	}
-	static expand = function () {
+	static expand () {
 		OPC.collapsed = false;
 		OPC.callParentFunction('OPC_collapsed', OPC.collapsed);
 	}
-	static delete = function (variableName) {
-		if (OPC.options[variableName]){ 
+	static delete (variableName) {
+		if (OPC.options[variableName]){
 			delete OPC.options[variableName];
 			delete window.variableName;
 		}
 		OPC.callParentFunction('OPC_delete', variableName);
 	}
 
-	static callParentFunction = function (functionName, arg = {}) {
+	static callParentFunction (functionName, arg = {}) {
 		// console.log(arg);
 		try {
 			//try sending as is
@@ -237,7 +234,6 @@ class OPC {
 			}, '*');
 		} catch (error) {
 			console.log('postMessage', error);
-
 		}
 	}
 
