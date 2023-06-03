@@ -5,7 +5,20 @@ class OPC {
 		this.collapsed = false;
 	}
 
-	static slider(variableName, value, min = 0, max = null, step = null) {
+	static slider(variableNameOrConfig, value, min = 0, max = null, step = null) {
+		let variableName
+		let label, description
+		if (typeof variableNameOrConfig === 'object') {
+			variableName = variableNameOrConfig.name;
+			value = variableNameOrConfig.value;
+			min = variableNameOrConfig.min ?? 0;
+			max = variableNameOrConfig.max ?? null;
+			step = variableNameOrConfig ?? null;
+			label = variableNameOrConfig.label;
+			description = variableNameOrConfig.description;
+		} else {
+			variableName = variableNameOrConfig;
+		}
 		//check existing params
 		let url = new URL(document.location.href);
 		if (url && url.searchParams.has(variableName)) {
@@ -20,15 +33,22 @@ class OPC {
 		this.options[variableName] = {
 			name: variableName,
 			type: 'slider',
-			value: value,
-			min: min,
-			max: max,
-			step: step
+			min, max, value, step, label, description
 		}
 		return this.initVariable(this.options[variableName]);
 	}
 
-	static toggle(variableName, value = true) {
+	static toggle(variableNameOrConfig, value = true) {
+		let variableName
+		let label, description
+		if (typeof variableNameOrConfig === 'object') {
+			variableName = variableNameOrConfig.name;
+			value = variableNameOrConfig.value ?? true;
+			label = variableNameOrConfig.label;
+			description = variableNameOrConfig.description;
+		} else {
+			variableName = variableNameOrConfig;
+		}
 		//check existing params
 		let url = new URL(document.location.href);
 		if (url && url.searchParams.has(variableName)) {
@@ -39,12 +59,23 @@ class OPC {
 		this.options[variableName] = {
 			name: variableName,
 			type: 'toggle',
-			value: value
+			value, label, description
 		}
 		return this.initVariable(this.options[variableName]);
 	}
 
-	static palette(variableName, options, value = null) {
+	static palette(variableNameOrConfig, options, value = null) {
+		let variableName
+		let label, description
+		if (typeof variableNameOrConfig === 'object') {
+			variableName = variableNameOrConfig.name;
+			options = variableNameOrConfig.options;
+			value = variableNameOrConfig.value ?? null;
+			label = variableNameOrConfig.label;
+			description = variableNameOrConfig.description;
+		} else {
+			variableName = variableNameOrConfig;
+		}
 		//check existing params
 		let url = new URL(document.location.href);
 		if (url && url.searchParams.has(variableName)) {
@@ -56,11 +87,21 @@ class OPC {
 			name: variableName,
 			type: 'palette',
 			value: value ?? options[0],
-			options: options
+			options, label, description
 		}
 		return this.initVariable(this.options[variableName]);
 	}
-	static color(variableName, value = '#333333') {
+	static color(variableNameOrConfig, value = '#333333') {
+		let variableName
+		let label, description
+		if (typeof variableNameOrConfig === 'object') {
+			variableName = variableNameOrConfig.name;
+			value = variableNameOrConfig.value ?? null;
+			label = variableNameOrConfig.label;
+			description = variableNameOrConfig.description;
+		} else {
+			variableName = variableNameOrConfig;
+		}
 		//check existing params
 		let url = new URL(document.location.href);
 		if (url && url.searchParams.has(variableName)) {
@@ -71,12 +112,24 @@ class OPC {
 		this.options[variableName] = {
 			name: variableName,
 			type: 'color',
-			value: value
+			value, label, description
 		}
 		return this.initVariable(this.options[variableName]);
 	}
 
-	static text(variableName, value, placeholder = null, maxChars = 1000) {
+	static text(variableNameOrConfig, value, placeholder = null, maxChars = 1000) {
+		let variableName
+		let label, description
+		if (typeof variableNameOrConfig === 'object') {
+			variableName = variableNameOrConfig.name;
+			value = variableNameOrConfig.value ?? null;
+			placeholder = variableNameOrConfig.placeholder ?? null;
+			maxChars = variableNameOrConfig.maxChars ?? 1000;
+			label = variableNameOrConfig.label;
+			description = variableNameOrConfig.description;
+		} else {
+			variableName = variableNameOrConfig;
+		}
 		//check existing params
 		let url = new URL(document.location.href);
 		if (url && url.searchParams.has(variableName)) {
@@ -87,13 +140,21 @@ class OPC {
 		this.options[variableName] = {
 			name: variableName,
 			type: 'text',
-			value: value,
-			placeholder: placeholder,
-			max: maxChars
+			max: maxChars,
+			value, placeholder, label, description
 		}
 		return this.initVariable(this.options[variableName]);
 	}
-	static button(variableName, buttonText) {
+	static button(variableNameOrConfig, buttonText) {
+		let variableName
+		let description
+		if (typeof variableNameOrConfig === 'object') {
+			variableName = variableNameOrConfig.name;
+			buttonText = variableNameOrConfig.text;
+			description = variableNameOrConfig.description;
+		} else {
+			variableName = variableNameOrConfig;
+		}
 		//check existing params
 		let url = new URL(document.location.href);
 		if (url && url.searchParams.has(variableName)) {
@@ -104,7 +165,8 @@ class OPC {
 		this.options[variableName] = {
 			name: variableName,
 			type: 'button',
-			value: buttonText
+			value: buttonText,
+			description
 		}
 		return this.initVariable(this.options[variableName]);
 	}
