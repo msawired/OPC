@@ -6,14 +6,13 @@ class OPC {
 	}
 
 	static slider(variableNameOrConfig, value, min = 0, max = null, step = null) {
-		let variableName
-		let label, description
+		let variableName, label, description;
 		if (typeof variableNameOrConfig === 'object') {
 			variableName = variableNameOrConfig.name;
 			value = variableNameOrConfig.value;
-			min = variableNameOrConfig.min ?? 0;
-			max = variableNameOrConfig.max ?? null;
-			step = variableNameOrConfig ?? null;
+			min = variableNameOrConfig.min ?? min;
+			max = variableNameOrConfig.max ?? max;
+			step = variableNameOrConfig ?? step;
 			label = variableNameOrConfig.label;
 			description = variableNameOrConfig.description;
 		} else {
@@ -39,11 +38,10 @@ class OPC {
 	}
 
 	static toggle(variableNameOrConfig, value = true) {
-		let variableName
-		let label, description
+		let variableName, label, description;
 		if (typeof variableNameOrConfig === 'object') {
 			variableName = variableNameOrConfig.name;
-			value = variableNameOrConfig.value ?? true;
+			value = variableNameOrConfig.value ?? value;
 			label = variableNameOrConfig.label;
 			description = variableNameOrConfig.description;
 		} else {
@@ -65,12 +63,11 @@ class OPC {
 	}
 
 	static palette(variableNameOrConfig, options, value = null) {
-		let variableName
-		let label, description
+		let variableName, label, description;
 		if (typeof variableNameOrConfig === 'object') {
 			variableName = variableNameOrConfig.name;
 			options = variableNameOrConfig.options;
-			value = variableNameOrConfig.value ?? null;
+			value = variableNameOrConfig.value ?? value;
 			label = variableNameOrConfig.label;
 			description = variableNameOrConfig.description;
 		} else {
@@ -92,11 +89,10 @@ class OPC {
 		return this.initVariable(this.options[variableName]);
 	}
 	static color(variableNameOrConfig, value = '#333333') {
-		let variableName
-		let label, description
+		let variableName, label, description;
 		if (typeof variableNameOrConfig === 'object') {
 			variableName = variableNameOrConfig.name;
-			value = variableNameOrConfig.value ?? null;
+			value = variableNameOrConfig.value ?? value;
 			label = variableNameOrConfig.label;
 			description = variableNameOrConfig.description;
 		} else {
@@ -118,13 +114,12 @@ class OPC {
 	}
 
 	static text(variableNameOrConfig, value, placeholder = null, maxChars = 1000) {
-		let variableName
-		let label, description
+		let variableName, label, description;
 		if (typeof variableNameOrConfig === 'object') {
 			variableName = variableNameOrConfig.name;
-			value = variableNameOrConfig.value ?? null;
-			placeholder = variableNameOrConfig.placeholder ?? null;
-			maxChars = variableNameOrConfig.maxChars ?? 1000;
+			value = variableNameOrConfig.value;
+			placeholder = variableNameOrConfig.placeholder ?? placeholder;
+			maxChars = variableNameOrConfig.maxChars ?? maxChars;
 			label = variableNameOrConfig.label;
 			description = variableNameOrConfig.description;
 		} else {
@@ -145,12 +140,12 @@ class OPC {
 		}
 		return this.initVariable(this.options[variableName]);
 	}
-	static button(variableNameOrConfig, buttonText) {
-		let variableName
-		let description
+	static button(variableNameOrConfig, value = 'Click Me!') {
+		let variableName, label, description;
 		if (typeof variableNameOrConfig === 'object') {
 			variableName = variableNameOrConfig.name;
-			buttonText = variableNameOrConfig.text;
+			value = variableNameOrConfig.value ?? value;
+			label = variableNameOrConfig.label ?? label;
 			description = variableNameOrConfig.description;
 		} else {
 			variableName = variableNameOrConfig;
@@ -165,8 +160,7 @@ class OPC {
 		this.options[variableName] = {
 			name: variableName,
 			type: 'button',
-			value: buttonText,
-			description
+			value, label, description
 		}
 		return this.initVariable(this.options[variableName]);
 	}
