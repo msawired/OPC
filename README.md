@@ -72,9 +72,9 @@ OPC.button(variableName, buttonText);
 //example: OPC.button('myButton', 'Click Me!');
 ```
 
-**Default values**
+**Defaults**
 
-None
+defaultValue: 'Click Me!'
 
 ### Color
 
@@ -85,7 +85,7 @@ OPC.color(variableName, defaultValue);
 //example: OPC.color('bg_color', '#ffffff');
 ```
 
-**Default values**
+**Defaults**
 
 defaultValue: #333333
 
@@ -112,6 +112,20 @@ OPC.palette('currentPalette',
 
 defaultValue: first option in paletteOptions array
 
+## Passing Arguments as Objects
+All OPC components can also be created by passing an object of arguments, such as below. This also allows passing in additional parameters [label, description].
+```javascript
+OPC.slider({
+	name: 'stroke_weight',
+	value: 3,
+	min: 1,
+	max: 10,
+	step:1,
+	label: 'Circle Border',
+	description: 'Changes the border size of the circle'
+});
+```
+Note that, the object values are copied and are **not** referenced; Changing the object arguments at a later time will not effect the OPC component.
 
 ## Events
 
