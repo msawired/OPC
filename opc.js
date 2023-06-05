@@ -5,7 +5,19 @@ class OPC {
 		this.collapsed = false;
 	}
 
-	static slider(variableName, value, min = 0, max = null, step = null) {
+	static slider(variableNameOrConfig, value, min = 0, max = null, step = null) {
+		let variableName, label, description;
+		if (typeof variableNameOrConfig === 'object') {
+			variableName = variableNameOrConfig.name;
+			value = variableNameOrConfig.value;
+			min = variableNameOrConfig.min ?? min;
+			max = variableNameOrConfig.max ?? max;
+			step = variableNameOrConfig ?? step;
+			label = variableNameOrConfig.label;
+			description = variableNameOrConfig.description;
+		} else {
+			variableName = variableNameOrConfig;
+		}
 		//check existing params
 		let url = new URL(document.location.href);
 		if (url && url.searchParams.has(variableName)) {
@@ -20,15 +32,21 @@ class OPC {
 		this.options[variableName] = {
 			name: variableName,
 			type: 'slider',
-			value: value,
-			min: min,
-			max: max,
-			step: step
+			min, max, value, step, label, description
 		}
 		return this.initVariable(this.options[variableName]);
 	}
 
-	static toggle(variableName, value = true) {
+	static toggle(variableNameOrConfig, value = true) {
+		let variableName, label, description;
+		if (typeof variableNameOrConfig === 'object') {
+			variableName = variableNameOrConfig.name;
+			value = variableNameOrConfig.value ?? value;
+			label = variableNameOrConfig.label;
+			description = variableNameOrConfig.description;
+		} else {
+			variableName = variableNameOrConfig;
+		}
 		//check existing params
 		let url = new URL(document.location.href);
 		if (url && url.searchParams.has(variableName)) {
@@ -39,12 +57,22 @@ class OPC {
 		this.options[variableName] = {
 			name: variableName,
 			type: 'toggle',
-			value: value
+			value, label, description
 		}
 		return this.initVariable(this.options[variableName]);
 	}
 
-	static palette(variableName, options, value = null) {
+	static palette(variableNameOrConfig, options, value = null) {
+		let variableName, label, description;
+		if (typeof variableNameOrConfig === 'object') {
+			variableName = variableNameOrConfig.name;
+			options = variableNameOrConfig.options;
+			value = variableNameOrConfig.value ?? value;
+			label = variableNameOrConfig.label;
+			description = variableNameOrConfig.description;
+		} else {
+			variableName = variableNameOrConfig;
+		}
 		//check existing params
 		let url = new URL(document.location.href);
 		if (url && url.searchParams.has(variableName)) {
@@ -56,11 +84,20 @@ class OPC {
 			name: variableName,
 			type: 'palette',
 			value: value ?? options[0],
-			options: options
+			options, label, description
 		}
 		return this.initVariable(this.options[variableName]);
 	}
-	static color(variableName, value = '#333333') {
+	static color(variableNameOrConfig, value = '#333333') {
+		let variableName, label, description;
+		if (typeof variableNameOrConfig === 'object') {
+			variableName = variableNameOrConfig.name;
+			value = variableNameOrConfig.value ?? value;
+			label = variableNameOrConfig.label;
+			description = variableNameOrConfig.description;
+		} else {
+			variableName = variableNameOrConfig;
+		}
 		//check existing params
 		let url = new URL(document.location.href);
 		if (url && url.searchParams.has(variableName)) {
@@ -71,12 +108,23 @@ class OPC {
 		this.options[variableName] = {
 			name: variableName,
 			type: 'color',
-			value: value
+			value, label, description
 		}
 		return this.initVariable(this.options[variableName]);
 	}
 
-	static text(variableName, value, placeholder = null, maxChars = 1000) {
+	static text(variableNameOrConfig, value, placeholder = null, maxChars = 1000) {
+		let variableName, label, description;
+		if (typeof variableNameOrConfig === 'object') {
+			variableName = variableNameOrConfig.name;
+			value = variableNameOrConfig.value;
+			placeholder = variableNameOrConfig.placeholder ?? placeholder;
+			maxChars = variableNameOrConfig.maxChars ?? maxChars;
+			label = variableNameOrConfig.label;
+			description = variableNameOrConfig.description;
+		} else {
+			variableName = variableNameOrConfig;
+		}
 		//check existing params
 		let url = new URL(document.location.href);
 		if (url && url.searchParams.has(variableName)) {
@@ -87,13 +135,21 @@ class OPC {
 		this.options[variableName] = {
 			name: variableName,
 			type: 'text',
-			value: value,
-			placeholder: placeholder,
-			max: maxChars
+			max: maxChars,
+			value, placeholder, label, description
 		}
 		return this.initVariable(this.options[variableName]);
 	}
-	static button(variableName, buttonText) {
+	static button(variableNameOrConfig, value = 'Click Me!') {
+		let variableName, label, description;
+		if (typeof variableNameOrConfig === 'object') {
+			variableName = variableNameOrConfig.name;
+			value = variableNameOrConfig.value ?? value;
+			label = variableNameOrConfig.label ?? label;
+			description = variableNameOrConfig.description;
+		} else {
+			variableName = variableNameOrConfig;
+		}
 		//check existing params
 		let url = new URL(document.location.href);
 		if (url && url.searchParams.has(variableName)) {
@@ -104,7 +160,7 @@ class OPC {
 		this.options[variableName] = {
 			name: variableName,
 			type: 'button',
-			value: buttonText
+			value, label, description
 		}
 		return this.initVariable(this.options[variableName]);
 	}
@@ -127,45 +183,42 @@ class OPC {
 		return true;
 	}
 
-
-	static set = function (variableName, value) {
+	static set (variableName, value) {
 		window[variableName] = value;
 	}
-	static buttonPressed = function (variableName, value) {
+
+	static buttonPressed (variableName, value) {
 		OPC.options[variableName].value = value;
 		if (typeof window.buttonPressed == 'function') {
 			window.buttonPressed(variableName, value);
 		}
 
 	}
-	static buttonReleased = function (variableName, value) {
+	static buttonReleased (variableName, value) {
 		OPC.options[variableName].value = value;
 		if (typeof window.buttonReleased == 'function') {
 			window.buttonReleased(variableName, value);
 		}
 
 	}
-	static set = function (variableName, value) {
-		window[variableName] = value;
-	}
 
-	static collapse = function () {
+	static collapse () {
 		OPC.collapsed = true;
 		OPC.callParentFunction('OPC_collapsed', OPC.collapsed);
 	}
-	static expand = function () {
+	static expand () {
 		OPC.collapsed = false;
 		OPC.callParentFunction('OPC_collapsed', OPC.collapsed);
 	}
-	static delete = function (variableName) {
-		if (OPC.options[variableName]){ 
+	static delete (variableName) {
+		if (OPC.options[variableName]){
 			delete OPC.options[variableName];
 			delete window.variableName;
 		}
 		OPC.callParentFunction('OPC_delete', variableName);
 	}
 
-	static callParentFunction = function (functionName, arg = {}) {
+	static callParentFunction (functionName, arg = {}) {
 		// console.log(arg);
 		try {
 			//try sending as is
@@ -175,7 +228,6 @@ class OPC {
 			}, '*');
 		} catch (error) {
 			console.log('postMessage', error);
-
 		}
 	}
 
