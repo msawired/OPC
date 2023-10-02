@@ -12,7 +12,7 @@ class OPC {
 			value = variableNameOrConfig.value;
 			min = variableNameOrConfig.min ?? min;
 			max = variableNameOrConfig.max ?? max;
-			step = variableNameOrConfig ?? step;
+			step = variableNameOrConfig.step ?? step;
 			label = variableNameOrConfig.label;
 			description = variableNameOrConfig.description;
 		} else {
