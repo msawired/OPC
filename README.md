@@ -110,6 +110,7 @@ OPC.palette('currentPalette',
 
 **Defaults**
 
+
 defaultValue: first option in paletteOptions array
 
 ### Select (Dropdown)
@@ -119,12 +120,16 @@ Options can be provided either as an array (such as [1,2,3,4,5]) or a key->value
 
 ```javascript
 OPC.select(variableName, options, [defaultValue]);
+//example with array: OPC.select('circles', [5,4,3,2,1]);
+//example with key/value: OPC.select('circles', {"A Lot": 5,"Few": 3,"One": 1});
 ```
 
 **Defaults**
+
 defaultValue: first value in options array/object.
 
 
+---
 
 ## Passing Arguments as Objects
 All OPC components can also be created by passing an object of arguments, such as below. This also allows passing in additional parameters [label, description].
