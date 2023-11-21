@@ -112,6 +112,20 @@ OPC.palette('currentPalette',
 
 defaultValue: first option in paletteOptions array
 
+### Select (Dropdown)
+
+Allows users to choose an option from a given set of options using an HTML Select (Dropdown).
+Options can be provided either as an array (such as [1,2,3,4,5]) or a key->value object (such as {"A Lot": 5,"Few": 3,"One": 1}). In the latter case, keys are used as a label in Select UI, and the value of the selection is assigned to the variable. 
+
+```javascript
+OPC.select(variableName, options, [defaultValue]);
+```
+
+**Defaults**
+defaultValue: first value in options array/object.
+
+
+
 ## Passing Arguments as Objects
 All OPC components can also be created by passing an object of arguments, such as below. This also allows passing in additional parameters [label, description].
 ```javascript

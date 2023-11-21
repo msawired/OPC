@@ -165,6 +165,35 @@ class OPC {
 		return this.initVariable(this.options[variableName]);
 	}
 
+	//create the same for "select"
+	static select(variableNameOrConfig, options, value = null) {
+		let variableName, label, description;
+		if (typeof variableNameOrConfig === 'object') {
+			variableName = variableNameOrConfig.name;
+			options = variableNameOrConfig.options;
+			value = variableNameOrConfig.value ?? value ?? options[Object.keys(options)[0]];
+			label = variableNameOrConfig.label;
+			description = variableNameOrConfig.description;
+		} else {
+			variableName = variableNameOrConfig;
+			value = value ?? options[Object.keys(options)[0]];
+		}
+		//check existing params
+		let url = new URL(document.location.href);
+		if (url && url.searchParams.has(variableName)) {
+			//Note: query params are all strings, so turn it to array
+			value = url.searchParams.get(variableName).split(',');
+		}
+
+		this.options[variableName] = {
+			name: variableName,
+			type: 'select',
+			value: value ?? options[0],
+			options, label, description
+		}
+		return this.initVariable(this.options[variableName]);
+	}
+
 	static initVariable = function (option) {
 		Object.defineProperty(window, option.name, {
 			configurable: true,
