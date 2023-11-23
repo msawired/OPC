@@ -1,6 +1,13 @@
-# OpenProcessing Configurator 3000
+# OP Configurator 3000
 
-This is a helper library that allows sketches on OpenProcessing to provide a UI to play with dynamic variables in their sketches. At the moment, UI components are only displayed if sketch is viewed on OpenProcessing, otherwise they are ignored and variables are set to 'defaultValue'.
+This is a helper library that allows generative art project to provide a UI to play with dynamic variables in their projects. Developed particularly [p5.js](https://p5js.org) in mind, this library converts the selected parameters to native UI elements to play with as the sketch runs live. Some applications:
+
+- Sketches that are exhibited to an audience: Audience can play with native UI elements to interact with sketch parameters.
+- FXHash params projects: Artists can prepare their FXHash params project using this library.
+- or simply experimenting: Artist can turn the variables they want to experiment with to native UI elements.
+
+OP Configurator communicates with the UI elements via postMessage() in browsers. This also allows configurator to be implemented across frames, making it suitable for use with iframes in code editors. Library can also be overridden to use the same mapping to other interfaces, such as physical buttons, knobs, sliders, etc.  
+
 
 ## Example
 
@@ -72,9 +79,9 @@ OPC.button(variableName, buttonText);
 //example: OPC.button('myButton', 'Click Me!');
 ```
 
-**Default values**
+**Defaults**
 
-None
+defaultValue: 'Click Me!'
 
 ### Color
 
@@ -85,7 +92,7 @@ OPC.color(variableName, defaultValue);
 //example: OPC.color('bg_color', '#ffffff');
 ```
 
-**Default values**
+**Defaults**
 
 defaultValue: #333333
 
@@ -110,8 +117,41 @@ OPC.palette('currentPalette',
 
 **Defaults**
 
+
 defaultValue: first option in paletteOptions array
 
+### Select (Dropdown)
+
+Allows users to choose an option from a given set of options using an HTML Select (Dropdown).
+Options can be provided either as an array (such as [1,2,3,4,5]) or a key->value object (such as {"A Lot": 5,"Few": 3,"One": 1}). In the latter case, keys are used as a label in Select UI, and the value of the selection is assigned to the variable. 
+
+```javascript
+OPC.select(variableName, options, [defaultValue]);
+//example with array: OPC.select('circles', [5,4,3,2,1]);
+//example with key/value: OPC.select('circles', {"A Lot": 5,"Few": 3,"One": 1});
+```
+
+**Defaults**
+
+defaultValue: first value in options array/object.
+
+
+---
+
+## Passing Arguments as Objects
+All OPC components can also be created by passing an object of arguments, such as below. This also allows passing in additional parameters [label, description].
+```javascript
+OPC.slider({
+	name: 'stroke_weight',
+	value: 3,
+	min: 1,
+	max: 10,
+	step:1,
+	label: 'Circle Border',
+	description: 'Changes the border size of the circle'
+});
+```
+Note that, the object values are copied and are **not** referenced; Changing the object arguments at a later time will not effect the OPC component.
 
 ## Events
 
