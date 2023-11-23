@@ -1,6 +1,13 @@
-# OpenProcessing Configurator 3000
+# OP Configurator 3000
 
-This is a helper library that allows sketches on OpenProcessing to provide a UI to play with dynamic variables in their sketches. At the moment, UI components are only displayed if sketch is viewed on OpenProcessing, otherwise they are ignored and variables are set to 'defaultValue'.
+This is a helper library that allows generative art project to provide a UI to play with dynamic variables in their projects. Developed particularly [p5.js](https://p5js.org) in mind, this library converts the selected parameters to native UI elements to play with as the sketch runs live. Some applications:
+
+- Sketches that are exhibited to an audience: Audience can play with native UI elements to interact with sketch parameters.
+- FXHash params projects: Artists can prepare their FXHash params project using this library.
+- or simply experimenting: Artist can turn the variables they want to experiment with to native UI elements.
+
+OP Configurator communicates with the UI elements via postMessage() in browsers. This also allows configurator to be implemented across frames, making it suitable for use with iframes in code editors. Library can also be overridden to use the same mapping to other interfaces, such as physical buttons, knobs, sliders, etc.  
+
 
 ## Example
 
