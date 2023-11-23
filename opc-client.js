@@ -1,3 +1,5 @@
+// This is an example client that can be used to test the OPC. You can customize this to adjust the UI to your needs.
+
 if (window.OPC || typeof OPC === "function") {
   let controlsElem;
 
@@ -21,86 +23,6 @@ if (window.OPC || typeof OPC === "function") {
 
     controlsElem.id = "opc-control-panel";
     document.body.appendChild(controlsElem);
-
-    // Insert custom CSS. Perhaps this will go better in an optional CSS
-    const style = document.createElement("style");
-    style.textContent = `
-      #opc-control-panel {
-        position: absolute;
-        top: 0px;
-        right: 10px;
-        padding: 1em;
-        background-color: #ffffff;
-        color: #333;
-        border: 1px solid #000000;
-        border-radius: 10px;
-        z-index: 9999;
-        width: 300px;
-        display: flex;
-        font-family: Montserrat, Helvetica, Arial, sans-serif;
-        font-size: 13px;
-        box-shadow: 2px 2px 4px #999;
-        flex-direction: column;
-      }
-      #opc-control-panel .opc-control-wrapper {
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 1em;
-      }
-      #opc-control-panel .opc-control-wrapper:last-child {
-        margin-bottom: 0;
-      }
-      #opc-control-panel .opc-control {
-        display: flex;
-        align-items: center;
-        flex-direction: row;
-        padding: 0 0.5em;
-        min-height: 2em;
-      }
-      #opc-control-panel .opc-control label {
-        flex: 0 0 40%;
-        text-transform: uppercase;
-      }
-      #opc-control-panel .opc-description {
-        color: #666;
-        margin-bottom: 0.3em;
-        font-size: 0.9em;
-      }
-      #opc-control-panel input {
-        display: block;
-        margin-left: auto;
-      }
-      #opc-control-panel input[type=number] {
-        width: 3em;
-        padding: 5px;
-        margin-right: 3px;
-      }
-      #opc-control-panel input[type=checkbox] {
-        transform: scale(1.2);
-      }
-      #opc-control-panel input[type=text] {
-        flex: 1;
-      }
-      #opc-control-panel input[type=button] {
-        flex: 1;
-        padding: 0.2em 0.5em;
-      }
-      #opc-control-panel .opc-palette-container {
-        flex: 1;
-        height: 1.5em;
-      }
-      #opc-control-panel .opc-palette {
-        display: none;
-        height: 100%;
-      }
-      #opc-control-panel .opc-palette.active {
-        display: flex;
-      }
-      #opc-control-panel .opc-palette .opc-palette-color {
-        flex: 1;
-      }
-    `;
-    document.head.appendChild(style);
   })
 
   let createId = () => Math.random().toString(36).substring(2, 6);
@@ -221,6 +143,48 @@ if (window.OPC || typeof OPC === "function") {
 
     container.appendChild(label);
     container.appendChild(textInput);
+    controlsElem.appendChild(wrapper);
+  }
+
+  let _opcCreateSelect = (option, controlsElem) => {
+    let id = 'select-' + createId();
+    let [wrapper, container] = createControlContainer(option.description);
+
+    let label = document.createElement("label");
+    label.setAttribute("for", id);
+    label.textContent = option.label ?? option.name;
+
+    const selectInput = document.createElement("select");
+    selectInput.id = id;
+    selectInput.value = option.value;
+
+    if (Array.isArray(option.options)) {
+      for (let value of option.options) {
+        let optionElem = document.createElement("option");
+        optionElem.value = value;
+        optionElem.textContent = value;
+        selectInput.appendChild(optionElem);
+      }
+    } else {
+      for (let [key, value] of Object.entries(option.options)) {
+        let optionElem = document.createElement("option");
+        optionElem.value = value;
+        optionElem.textContent = key;
+        selectInput.appendChild(optionElem);
+      }
+    }
+
+    selectInput.addEventListener('change', () => {
+      OPC.set(option.name, selectInput.value);
+    })
+
+    opcControlEvents[option.name] ||= [];
+    opcControlEvents[option.name].push((v) => {
+      selectInput.value = v;
+    });
+
+    container.appendChild(label);
+    container.appendChild(selectInput);
     controlsElem.appendChild(wrapper);
   }
 
@@ -354,6 +318,9 @@ if (window.OPC || typeof OPC === "function") {
           break;
         case "palette":
           _opcCreatePalettePicker(option, controlsElem);
+          break;
+        case "select":
+          _opcCreateSelect(option, controlsElem);
           break;
         default:
           console.warn(`OPC Control type ${option.type} not supported`);
