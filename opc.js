@@ -5,20 +5,22 @@ class OPC {
 		this.collapsed = false;
 	}
 
+	//this update didn't work out.
+	// here is the sandbox for usin proxy object: https://replit.com/@msawired/js-proxy-test#index.js
+	// ultimately, the returned item should be an object, and usage is obj.myVar = 1234; Can never do myVar = 1234; 
+	// so it doesn't simplify things much.
 	static slider(value, min = 0, max = null, step = null){
-		let variableName, label, description;
-		if (typeof variableNameOrConfig === 'object') {
-			variableName = variableNameOrConfig.name;
-			value = variableNameOrConfig.value;
-			min = variableNameOrConfig.min ?? min;
-			max = variableNameOrConfig.max ?? max;
-			step = variableNameOrConfig.step ?? step;
-			label = variableNameOrConfig.label;
-			description = variableNameOrConfig.description;
-		} else {
-			variableName = variableNameOrConfig;
-		}
-		//check existing params
+		let variableName = 'OPC-slider-'+Math.random();
+		let label, description;
+		if (typeof value === 'object') {
+			value = value.value;
+			min = value.min ?? min;
+			max = value.max ?? max;
+			step = value.step ?? step;
+			label = value.label;
+			description = value.description;
+		} 
+		//TODO this won't work if variableName is not provided. Need to find another way. 
 		let url = new URL(document.location.href);
 		if (url && url.searchParams.has(variableName)) {
 			//if found, ignore requested value, replace with URL param
@@ -29,12 +31,13 @@ class OPC {
 		max = max == null ? value * 2 : max;
 		step = step == null ? value / 10 : step;
 
-		this.options[variableName] = {
+		let newVar = {
 			name: variableName,
 			type: 'slider',
 			min, max, value, step, label, description
 		}
-		return this.initVariable(this.options[variableName]);
+		this.options[variableName] = newVar;
+		return this.initVariable(newVar);
 	}
 
 	static toggle(variableNameOrConfig, value = true) {
@@ -195,9 +198,11 @@ class OPC {
 	}
 
 	static initVariable = function (option) {
-		Object.defineProperty(window, option.name, {
+		console.log(option);
+		let prop = Object.defineProperty(window, option.name, {
 			configurable: true,
 			get: function () {
+				console.log('get!');
 				return OPC.options[option.name].value;
 			},
 			set: function (value) {
@@ -209,7 +214,8 @@ class OPC {
 			}
 		});
 		this.callParentFunction('OPC', option);
-		return true;
+		console.log(prop);
+		return window[option.name];
 	}
 
 	static set (variableName, value) {

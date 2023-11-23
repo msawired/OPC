@@ -3,11 +3,10 @@
 // Read full documentation at https://github.com/msawired/OPC
 
 // Example: Create a variable "radius" that can be controlled via a slider, with default value 250
-OPC.slider('radius', 250);
+var radius = OPC.slider(250);
 
 //you can also provide the arguments in a single object, with optional additional arguments [label, description]
-OPC.slider({
-	name: 'stroke_weight',
+var stroke_weight = OPC.slider({
 	value: 3,
 	min: 1,
 	max: 10,
