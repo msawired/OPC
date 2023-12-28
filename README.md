@@ -29,6 +29,11 @@ function draw() {
 }
 ```
 
+On OpenProcessing, you can also set these parameter defaults using the URI parameters starting with "sketch_" when you share your sketch. These parameters will be passed on your sketch (with "sketch_" stripped) and OPC library will use these as defaults instead.
+
+Example URL for above:  [https://openprocessing.org/sketch/1532131?sketch_radius=15](https://openprocessing.org/sketch/1532131?sketch_radius=15)
+
+
 ## Available Options
 
 ### Slider
