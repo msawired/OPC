@@ -303,6 +303,10 @@ class OPC {
 		}
 	}
 
+	static set(variableName, value) {
+		window[variableName] = value;
+	}
+
 	static buttonPressed(variableName, value) {
 		OPC.options[variableName].value = value;
 		if (typeof window.buttonPressed == 'function') {
