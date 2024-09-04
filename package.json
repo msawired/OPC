@@ -1,0 +1,27 @@
+{
+  "name": "op-configurator",
+  "version": "0.5.1",
+  "description": "A parameter controller allowing easy creation of dynamic variables that can be controlled with standard UI (HTML form elements).",
+  "main": "opc.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/msawired/OPC.git"
+  },
+  "keywords": [
+    "p5js",
+    "openprocessing",
+    "generative"
+  ],
+  "author": "https://github.com/msawired",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/msawired/OPC/issues"
+  },
+  "homepage": "https://github.com/msawired/OPC#readme"
+}
