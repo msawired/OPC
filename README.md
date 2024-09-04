@@ -8,6 +8,21 @@ This is a helper library that allows generative art project to provide a UI to p
 
 OP Configurator communicates with the UI elements via postMessage() in browsers. This also allows configurator to be implemented across frames, making it suitable for use with iframes in code editors. Library can also be overridden to use the same mapping to other interfaces, such as physical buttons, knobs, sliders, etc.  
 
+## Installation
+On OpenProcessing, just toggle on the "OP Configurator 3000" in the default libraries list. On an HTML project, you can manually load it as below:
+```html
+<script src="https://cdn.jsdelivr.net/gh/msawired/OPC@latest/opc.min.js"></script>
+```
+This will automatically enable the OPC interface on OpenProcessing.
+
+If you are creating a project outside of OpenProcessing, you can also use example client files to create a similar basic interface on your HTML document. (Check out [example/index.html](https://github.com/msawired/OPC/blob/master/example/index.html))
+```html
+<script src="https://cdn.jsdelivr.net/gh/msawired/OPC@latest/opc_client.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/msawired/OPC@latest/opc_client.css"> 
+```
+
+Remember to replace the "latest" in the URLs above with the most recent release version to prevent future updates break your project. 
+
 
 ## Example
 
