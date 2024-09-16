@@ -59,13 +59,16 @@ class OPC {
 				let variableName = message.address.slice(1); //remove the first slash
 				if (OPC.options[variableName]) {
 					if (message.args.length === 1) {
-						let value = message.args[0].value;
-						if (message.args[0].type === 'f') {
-							value = parseFloat(value);
-						} else if (message.args[0].type === 'i') {
-							value = parseInt(value);
-						} else if (message.args[0].type === 's') {
-							value = value.split(',');
+						let value = message.args[0];
+						if (typeof message.args[0] === 'object') {
+							value = message.args[0].value;
+							if (message.args[0].type === 'f') {
+								value = parseFloat(value);
+							} else if (message.args[0].type === 'i') {
+								value = parseInt(value);
+							} else if (message.args[0].type === 's') {
+								value = value.split(',');
+							}
 						}
 						OPC._set(variableName, value);
 					}
