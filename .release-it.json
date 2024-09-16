@@ -1,0 +1,13 @@
+{
+	"git": {
+		"tagName": "${version}",
+		"commitMessage": "Version Bump ${version}",
+		"requireCleanWorkingDir": true,
+		"requireUpstream": false,
+		"commit": true,
+		"pushTags": true
+	},
+	"npm": {
+		"publish": false
+	}
+}
