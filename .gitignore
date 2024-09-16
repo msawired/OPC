@@ -1,2 +1,4 @@
 
+/oscServer/node_modules
 /node_modules
+.release-it.json
