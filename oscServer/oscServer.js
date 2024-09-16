@@ -22,8 +22,6 @@ server = app.listen(staticPort, () => {
 	console.log(`✅ Websocket port ready on ws://localhost:${staticPort}`)
 });
 
-// app.use("/", app.static(__dirname + "/static"));
-
 // Listen for Web Socket requests.
 var wss = new WebSocket.Server({ server });
 
@@ -53,18 +51,20 @@ wss.on("connection", function (socket) {
 });
 
 // Create an osc.js UDP Ports.
-var udpPortR = new osc.UDPPort({
+var udpPort = new osc.UDPPort({
 	localAddress: "127.0.0.1",
-	localPort: udpPortReceive
+	localPort: udpPortReceive,
+	remoteAddress: "127.0.0.1",
+	remotePort: udpPortSend
 });
 
 // Listen for incoming OSC messages.
-udpPortR.on("message", function (oscMsg) {
+udpPort.on("message", function (oscMsg) {
 	verbose && console.log("New Message:", oscMsg);
 	echoMessage(oscMsg.address, oscMsg.args);
 });
 // Listen for incoming OSC messages.
-udpPortR
+udpPort
 	.on("ready", function () {
 		console.log(`✅ UDP port ready to receive on 127.0.0.1:${udpPortReceive}`);
 	}).on("error", function (err) {
@@ -76,42 +76,31 @@ udpPortR
 		}
 		process.exit(1);
 	});
-udpPortR.open();
-
-//connect to the sending port
-var udpPortS = new osc.UDPPort({
-	localAddress: "127.0.0.1",
-	localPort: udpPortSend
-});
-udpPortS.on("ready", function () {
-	console.log(`✅ UDP port ready to send on 127.0.0.1:${udpPortSend}`);
-}).on("error", function (err) {
-	console.error(`❌ UDP port can't be created on 127.0.0.1:${udpPortSend}`);
-	if (err.code === 'EADDRINUSE') {
-		console.error(`Port already occupied.`);
-	} else {
-		console.error(err.message);
-	}
-	process.exit(1);
-});
-udpPortS.open();
-
+udpPort.open();
 
 function echoMessage(address, args) {
 	// Send OSC message back to other parties
-	udpPortS.send({
+	udpPort.send({
 		address,
 		args
 	});
+	let type = 's'; //default string
+	switch (typeof args[0]) {
+		case 'number':
+			type = 'f';
+			break;
+		case 'boolean':
+			type = 'T';
+			break;
+	}
 	socketPort?.send({
 		address,
-		args: [ { type: args[0]?.type ?? 'f', value: args[0]?.value ?? args[0] } ]
+		args: [{ type: args[0]?.type ?? type, value: args[0]?.value ?? args[0] }]
 	});
 }
 
 //close the ports on exit
 process.on('exit', function () {
-	udpPortR?.close();
-	udpPortS?.close();
+	udpPort?.close();
 	socketPort?.close();
 });
