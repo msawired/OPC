@@ -1,0 +1,15 @@
+{
+  "name": "opcserver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "opcServer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "osc": "^2.4.4"
+  }
+}

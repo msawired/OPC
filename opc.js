@@ -40,7 +40,7 @@ class OPC {
 			console.log('OSC connection closed');
 		});
 		OPC.osc.on('error', function (error) {
-			console.log('OSC error:', error);
+			console.error('OSC error:', error);
 		});
 		OPC.osc.on('message', function (message) {
 			//set variables based on message
