@@ -236,10 +236,10 @@ OPC.delete('myVariable');
 
 
 # OSC Support
-You can connect OPC to a websocket server to communicate with other devices via OSC protocol. An example websocket server that also opens a UDP port is provided in the oscServer folder. An example OPC control interface (for TouchOSC) is provided in the example folder.
+You can connect OPC to a websocket server to communicate with other devices via OSC protocol. An example websocket server that also opens a UDP port is provided in the oscServer folder. An example OPC control interface (for [TouchOSC](https://hexler.net/touchosc)) is provided in the example folder.
 
 
-https://github.com/msawired/OPC/raw/OSC-support/docs/OSC_recording.webm
+![OSC Recording](./docs/OSC_recording.gif)
 
 ## Example Installation and Setup
 
