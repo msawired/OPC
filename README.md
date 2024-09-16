@@ -8,6 +8,7 @@ This is a helper library that allows generative art project to provide a UI to p
 
 OP Configurator communicates with the UI elements via postMessage() in browsers. This also allows configurator to be implemented across frames, making it suitable for use with iframes in code editors. Library can also be overridden to use the same mapping to other interfaces, such as physical buttons, knobs, sliders, etc.  
 
+OPC also supports OSC [Open Sound Control](https://en.wikipedia.org/wiki/Open_Sound_Control) protocol and can connect to a websocket server to send/receive OSC data. See [OSC Support](#osc).
 
 ## Example
 
@@ -232,3 +233,65 @@ Deletes a variable and removes its UI component from the interface.
 ```javascript
 OPC.delete('myVariable');
 ```
+
+
+# OSC Support
+You can connect OPC to a websocket server to communicate with other devices via OSC protocol. An example websocket server that also opens a UDP port is provided in the oscServer folder. An example OPC control interface (for TouchOSC) is provided in the example folder.
+
+
+./docs/OSC_recording.webm
+
+## Example Installation and Setup
+
+### Step 1: Clone the Repository
+
+First, clone this repository to your local machine, and install the necessary dependencies for the server.
+
+```sh
+git clone https://github.com/msawired/OPC.git
+cd OPC/oscServer
+npm install
+```
+
+### Step 2: Run the OSC Server
+
+Start the OSC server using the following command:
+
+```sh
+node oscServer.js
+
+```
+
+The server will start and listen for incoming OSC messages on the specified port. You can also define the ports and output every message received via:
+
+```sh
+node oscServer.js 57120 --verbose
+```
+
+### Step 3: Connect via TouchOSC
+
+1. Install and open the [TouchOSC](https://hexler.net/touchosc) app on your device.
+2. (Optional) Open the example in the "/example/TouchOSC example.tosc"
+2. Go to the "Connections" tab and add a new OSC connection.
+3. Set the Host as "127.0.0.1"
+4. Set the Send Port to the port number specified in the `oscServer.js` file (default is 57120).
+5. Save the connection settings.
+![TouchOSC setup screenshot](./docs/touchOSC_screenshot.png)
+2. Open the example layout provided in the `example` folder of the repository.
+3. Press play to connect layout to the server.
+
+Your TouchOSC app should now be able to send and receive OSC messages to and from the OSC server.
+
+### Step 4: Connect OPC to the OSC Server
+
+Add the code below to your sketch to connect OPC to your server:
+```js
+OPC.setOSC('ws://localhost', 8081);
+```
+Once connected, any changes in the variable values will be sent as an OSC message to TouchOS and vice versa.
+
+### Troubleshooting
+
+- Ensure that your device and the machine running the OSC server are on the same network.
+- Verify that the IP address and port number are correctly configured in TouchOSC.
+- Check the console output of the OSC server for any error messages.
