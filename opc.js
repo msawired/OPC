@@ -37,10 +37,20 @@ class OPC {
 			console.log('OSC connection opened');
 		});
 		OPC.osc.on('close', function () {
-			console.log('OSC connection closed');
+			console.log('OSC connection closed. Trying again in 5 seconds...');
+			//try again in 5 seconds
+			setTimeout(function () {
+				OPC.osc.open();
+			}, 5000);
+
 		});
 		OPC.osc.on('error', function (error) {
-			console.error('OSC error:', error);
+			console.log('OSC connection error. Trying again in 5 seconds...');
+			//try again in 5 seconds
+			setTimeout(function () {
+				OPC.osc.open();
+			}, 5000);
+
 		});
 		OPC.osc.on('message', function (message) {
 			//set variables based on message
