@@ -157,7 +157,7 @@ OPC.select(variableName, options, [defaultValue]);
 
 defaultValue: first value in options array/object.
 
-### Ease
+### Bezier
 
 Creates an interactive Bézier curve editor for custom easing functions. Users can visually design smooth animation curves by manipulating anchor points and control handles. The function returns an easing function that takes a value from 0-1 and returns the eased result.
 To keep curve smooth and editing simple, currently it works with one control point per anchor point. Second control point is extrapolated symmetrically from the first anchor point.
@@ -165,16 +165,16 @@ To keep curve smooth and editing simple, currently it works with one control poi
 **Example**
 
 ```javascript
-let bounceEase = OPC.ease(functionName, [anchors]);
-//example: OPC.ease('myEase');
-//example with custom curve: OPC.ease('bounceEase', [
+let bounceBezier = OPC.bezier(functionName, [anchors]);
+//example: OPC.bezier('myBezier');
+//example with custom curve: OPC.bezier('bounceBezier', [
 //  { pX: 0, pY: 0, cX: 0.25, cY: 0.46 },
 //  { pX: 0.5, pY: 1.2, cX: 0.45, cY: 1.0 },
 //  { pX: 1, pY: 1, cX: 0.75, cY: 0.8 }
 //]);
 
 let t = frameCount * 0.01; // time from 0 to 1
-let easedValue = bounceEase(t % 1.0);
+let easedValue = bounceBezier(t % 1.0);
 ```
 
 **Anchor Format**

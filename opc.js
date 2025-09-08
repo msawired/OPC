@@ -426,29 +426,29 @@ class OPC {
 
 
 	/**
-	 * Creates an interactive easing function editor with Bézier curve controls
+	 * Creates an interactive Bézier curve editor for custom easing functions
 	 * 
-	 * @param {string} functionName - Name of the easing function variable
+	 * @param {string} functionName - Name of the Bézier function variable
 	 * @param {Array} [anchors=null] - Array of anchor points with format [{pX, pY, cX, cY}, ...]
 	 *   - pX, pY: Point coordinates (0-1 range)
 	 *   - cX, cY: Control handle coordinates (0-1 range)
-	 * @returns {Function} Easing function that takes t (0-1) and returns eased value (0-1)
+	 * @returns {Function} Bézier function that takes t (0-1) and returns eased value (0-1)
 	 * 
 	 * @example
 	 * // Default ease-in-out
-	 * let myEase = OPC.ease('myEase');
+	 * let myBezier = OPC.bezier('myBezier');
 	 * 
-	 * // Custom easing curve
-	 * let bounceEase = OPC.ease('bounceEase', [
+	 * // Custom Bézier curve
+	 * let bounceBezier = OPC.bezier('bounceBezier', [
 	 *   { pX: 0, pY: 0, cX: 0.25, cY: 0.46 },
 	 *   { pX: 0.5, pY: 1.2, cX: 0.45, cY: 1.0 },
 	 *   { pX: 1, pY: 1, cX: 0.75, cY: 0.8 }
 	 * ]);
 	 * 
 	 * // Usage in animation
-	 * let progress = myEase(t); // t from 0 to 1
+	 * let progress = myBezier(t); // t from 0 to 1
 	 */
-	static ease(functionName, anchors = null) {
+	static bezier(functionName, anchors = null) {
 		if (!anchors) { //set default to ease-in-out
 			anchors = [
 				{ pX: 0, pY: 0, cX: 0.42, cY: 0 },
@@ -457,12 +457,12 @@ class OPC {
 		}
 		if (!Array.isArray(anchors) || anchors.length === 0 ||
 			typeof anchors[0] !== 'object' || !('pX' in anchors[0])) {
-			throw new Error('OPC.ease expects anchor array format: [{pX, pY, cX, cY}, ...]');
+			throw new Error('OPC.bezier expects anchor array format: [{pX, pY, cX, cY}, ...]');
 		}
 
 		this.options[functionName] = {
 			name: functionName,
-			type: 'ease',
+			type: 'bezier',
 			value: anchors,
 			marker: null,
 			description: null
@@ -484,7 +484,7 @@ class OPC {
 		Object.defineProperty(window, option.name, {
 			configurable: true,
 			get: function () {
-				if (option.type == 'ease') {
+				if (option.type == 'bezier') {
 					return OPC.getEaseFunction(option);
 				}
 				return OPC.options[option.name].value;
@@ -747,11 +747,11 @@ class OPC {
 			const x = clamp01(+t || 0);
 			// exact boundaries
 			if (x <= segments[0].p1x) {
-				OPC.callParentFunction('OPC_ease_marker', { name: option.name, x: segments[0].p1x, y: segments[0].p1y });
+				OPC.callParentFunction('OPC_bezier_marker', { name: option.name, x: segments[0].p1x, y: segments[0].p1y });
 				return segments[0].p1y;
 			}
 			if (x >= segments.at(-1).p2x) {
-				OPC.callParentFunction('OPC_ease_marker', { name: option.name, x: segments.at(-1).p2x, y: segments.at(-1).p2y });
+				OPC.callParentFunction('OPC_bezier_marker', { name: option.name, x: segments.at(-1).p2x, y: segments.at(-1).p2y });
 				return segments.at(-1).p2y;
 			}
 
@@ -759,8 +759,8 @@ class OPC {
 			const seg = segments[idx];
 			const tt = solveTforX(seg, x);
 			const result = evalCubic(seg.p1x, seg.p1y, seg.c1x, seg.c1y, seg.c2x, seg.c2y, seg.p2x, seg.p2y, tt);
-			// Send marker position once per ease function call
-			OPC.callParentFunction('OPC_ease_marker', { name: option.name, x: result[0], y: result[1] });
+			// Send marker position once per bezier function call
+			OPC.callParentFunction('OPC_bezier_marker', { name: option.name, x: result[0], y: result[1] });
 			return result[1];
 		};
 	}
