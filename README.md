@@ -157,6 +157,62 @@ OPC.select(variableName, options, [defaultValue]);
 
 defaultValue: first value in options array/object.
 
+### Ease
+
+Creates an interactive Bézier curve editor for custom easing functions. Users can visually design smooth animation curves by manipulating anchor points and control handles. The function returns an easing function that takes a value from 0-1 and returns the eased result.
+To keep curve smooth and editing simple, currently it works with one control point per anchor point. Second control point is extrapolated symmetrically from the first anchor point.
+
+**Example**
+
+```javascript
+let bounceEase = OPC.ease(functionName, [anchors]);
+//example: OPC.ease('myEase');
+//example with custom curve: OPC.ease('bounceEase', [
+//  { pX: 0, pY: 0, cX: 0.25, cY: 0.46 },
+//  { pX: 0.5, pY: 1.2, cX: 0.45, cY: 1.0 },
+//  { pX: 1, pY: 1, cX: 0.75, cY: 0.8 }
+//]);
+
+let t = frameCount * 0.01; // time from 0 to 1
+let easedValue = bounceEase(t % 1.0);
+```
+
+**Anchor Format**
+- `pX, pY`: Anchor point coordinates (0-1 range)
+- `cX, cY`: Control handle coordinates (0-1 range)
+
+**Defaults**
+
+anchors: Default ease-in-out curve with two anchor points
+
+### Label
+
+Displays a read-only text label for showing dynamic values or information. Useful for displaying calculated values, frame rates, or other real-time data that users should see but not edit.
+
+```javascript
+OPC.label(variableName, [value], [description]);
+//example: OPC.label('frameRate', 60);
+//example with description: OPC.label('particleCount', 0, 'Number of active particles');
+```
+
+**Usage**
+```javascript
+// Create labels first
+OPC.label('frameRate', 60);
+OPC.label('particleCount', 0, 'Number of active particles');
+
+// Update the label values dynamically
+function draw() {
+    frameRate = frameRate();
+    particleCount = particles.length;
+}
+```
+
+**Defaults**
+
+value: null
+description: null
+
 
 ---
 
