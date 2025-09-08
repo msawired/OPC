@@ -269,7 +269,7 @@ To get an alert everytime user releases a pressed a button. If you are using mul
 **Example**
 
 ```javascript
-function buttonPressed(variableName, value) {
+function buttonReleased(variableName, value) {
 	if (variableName === 'myButton') {
 		print('Button is released');
 	}
