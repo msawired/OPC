@@ -592,10 +592,10 @@ class OPC {
 	 * 
 	 * @private
 	 * @param {string} functionName - Name of the function/event to call
-	 * @param {Object} [arg={}] - Arguments to pass with the message
+	 * @param {*} [arg] - Data to pass with the message
 	 */
-	static callParentFunction(functionName, arg = {}) {
-		const msg = { ...arg };
+	static callParentFunction(functionName, arg) {
+		const msg = typeof arg === 'undefined' ? {} : arg;
 		if (window.parent) {
 			window.parent.postMessage({
 				'messageType': functionName,
