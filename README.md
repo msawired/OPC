@@ -299,11 +299,15 @@ OPC.expand();
 
 ### delete(variableName)
 
-Deletes a variable and removes its UI component from the interface.
+Removes a control's UI component from the interface and stops OPC from managing the variable.
+
+Note: this does **not** remove the variable from the global scope — it keeps its last value so any references in code keeps working. If you want the variable gone entirely, delete it manually afterwards (e.g. `delete window.myVariable`).
+
 **Example**
 
 ```javascript
 OPC.delete('myVariable');
+// delete window.myVariable;  //optional: delete from global scope
 ```
 
 

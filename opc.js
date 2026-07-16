@@ -573,14 +573,27 @@ class OPC {
 		OPC.callParentFunction('OPC_collapsed', OPC.collapsed);
 	}
 	/**
-	 * Removes an OPC variable and its control from the UI
-	 * 
-	 * @param {string} variableName - Name of the variable to delete
+	 * Removes an OPC control from the UI and stops OPC from managing the variable.
+	 *
+	 * Note: this does NOT remove the variable from the sketch's global scope — it keeps
+	 * its last value so any code still referencing it keeps working instead of throwing a
+	 * ReferenceError. If you want the variable gone entirely, delete it yourself afterwards
+	 * (e.g. `delete window.myControl`).
+	 *
+	 * @param {string} variableName - Name of the control to remove
 	 */
 	static delete(variableName) {
 		if (OPC.options[variableName]) {
+			// Capture the current resolved value (via the getter, so beziers keep their
+			// ease function) before tearing down OPC's accessor.
+			let lastValue = window[variableName];
 			delete OPC.options[variableName];
+			// Replace the OPC getter/setter accessor with a plain global holding the last
+			// value, so sketch code that still references the variable keeps working
+			// instead of throwing a ReferenceError. The control is removed from the UI and
+			// OPC no longer manages it, but the variable stays in global scope.
 			delete window[variableName];
+			window[variableName] = lastValue;
 			OPC.callParentFunction('OPC_delete', variableName);
 		}
 	}
