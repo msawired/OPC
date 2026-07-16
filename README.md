@@ -10,8 +10,14 @@ OP Configurator communicates with the UI elements via postMessage() in browsers.
 
 OPC also supports OSC [Open Sound Control](https://en.wikipedia.org/wiki/Open_Sound_Control) protocol and can connect to a websocket server to send/receive OSC data. See [OSC Support](#osc-support).
 
+> **Note for maintainers:** OpenProcessing (OP-Prod) now vendors its own copy of `opc.js`
+> at `assets/js/sketch/opc.js` and loads it on every sketch automatically. When cutting a
+> release here, copy `opc.js` into that path in OP-Prod so the two stay in sync.
+
 ## Installation
-On OpenProcessing, just toggle on the "OP Configurator 3000" in the default libraries list. On an HTML project, you can manually load it as below:
+On OpenProcessing, OPC is available on every sketch automatically — just assign `OPC.myVar = ...`
+in your code and turn on the "Controls" setting (it also enables itself when it detects OPC usage).
+On an HTML project, you can manually load it as below:
 ```html
 <script src="https://cdn.jsdelivr.net/gh/msawired/OPC@latest/opc.min.js"></script>
 ```
@@ -45,6 +51,45 @@ function draw() {
     circle(mouseX, mouseY, radius);
 }
 ```
+
+## Direct assignment (recommended)
+
+The simplest way to add a control is to assign a value directly onto `OPC`. The control
+type is inferred from the value, and you read the current value back through the same
+property (e.g. `OPC.radius`). Assigning again to an existing control updates its value
+without recreating it.
+
+```js
+OPC.radius = 10;             // number  -> slider
+OPC.showGrid = true;         // boolean -> toggle
+OPC.bg = '#ffaaaa';          // #hex    -> color picker
+OPC.caption = 'hello';       // string  -> text input
+OPC.shape = ['circle','square'];        // flat array   -> dropdown (select)
+OPC.colors = [['#f00','#0f0'],['#00f']];// array of color arrays -> palette
+
+// dropdown with custom labels: a { label: value } object
+OPC.quality = { Low: 1, Medium: 2, High: 3 };
+
+function draw() {
+    background(OPC.bg);
+    circle(mouseX, mouseY, OPC.radius);   // read the live value
+}
+```
+
+For precise configuration, assign the result of a nameless creator call. The creator
+returns a lightweight descriptor that the assignment turns into a named control:
+
+```js
+OPC.radius = OPC.slider(10, 0, 100, 1);          // value, min, max, step
+OPC.speed  = OPC.slider({ value: 5, min: 0, max: 10, step: 0.1, label: 'Speed' });
+OPC.myEase = OPC.bezier([{pX:0,pY:0,cX:0.42,cY:0}, {pX:1,pY:1,cX:0.58,cY:1}]);
+```
+
+Built-in method names are protected: `OPC.slider = 123` (or any other reserved name)
+throws, so you can't accidentally clobber the library.
+
+The classic named API — `OPC.slider('radius', 10)` and friends — continues to work
+unchanged, so existing sketches are unaffected.
 
 On OpenProcessing, you can also set these parameter defaults using the URI parameters starting with "sketch_" when you share your sketch. These parameters will be passed on your sketch (with "sketch_" stripped) and OPC library will use these as defaults instead.
 

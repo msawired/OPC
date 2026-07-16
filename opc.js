@@ -1,22 +1,38 @@
 /**
  * OpenProcessing Configurator (OPC) - A dynamic UI control system for creative coding
- * 
+ *
  * Provides a simple API to create interactive controls (sliders, toggles, colors, etc.)
  * that automatically generate UI elements and can be synchronized via OSC.
- * 
+ *
  * @example
- * // Create a slider control
- * let speed = OPC.slider('speed', 5, 0, 10, 0.1);
- * 
- * // Create an easing function
- * let myEase = OPC.ease('myEase', [
+ * // Direct assignment - control type is inferred from the value
+ * OPC.speed = 5;              // slider (0 to 10, step 0.5)
+ * OPC.showGrid = true;        // toggle
+ * OPC.bgColor = '#ffaaaa';    // color picker
+ * OPC.caption = 'hello';      // text input
+ * OPC.shape = ['circle', 'square'];          // select dropdown
+ * OPC.colors = [['#ff0000', '#00ff00']];     // palette selector
+ *
+ * // Precise configuration - nameless creator calls return a descriptor
+ * OPC.speed = OPC.slider(5, 0, 10, 0.1);
+ * OPC.myEase = OPC.bezier([
  *   { pX: 0, pY: 0, cX: 0.42, cY: 0 },
  *   { pX: 1, pY: 1, cX: 0.58, cY: 1 }
  * ]);
+ *
+ * // Classic named API (still supported)
+ * let speed = OPC.slider('speed', 5, 0, 10, 0.1);
  */
-class OPC {
+(function () {
+	'use strict';
+	//redefinition guard: if another copy of OPC is already loaded, keep the first one
+	if (typeof window !== 'undefined' && window.OPC) {
+		return;
+	}
+
+	class OPC {
 	static options = {};
-	
+
 	/**
 	 * Creates a new OPC instance
 	 */
@@ -27,19 +43,54 @@ class OPC {
 	}
 
 	/**
+	 * Creates a numeric parameter. Alias of OPC.slider().
+	 *
+	 * Usage:
+	 *  - OPC.number('speed', 5, 0, 10, 0.1)
+	 *  - OPC.number({ name:'speed', value:5, min:0, max:10, step:0.1, label:'Speed' })
+	 *  - OPC.myVar = OPC.number(5, 0, 10, 0.1) // nameless descriptor form
+	 */
+	static number(variableNameOrConfigOrValue, min = 0, max = null, step = null) {
+		if (OPC._isNameless(variableNameOrConfigOrValue)) {
+			return OPC._pending('slider', typeof variableNameOrConfigOrValue === 'object' && variableNameOrConfigOrValue !== null
+				? { ...variableNameOrConfigOrValue }
+				: { value: variableNameOrConfigOrValue, min: arguments[1] ?? 0, max: arguments[2] ?? null, step: arguments[3] ?? null });
+		}
+		return OPC.slider(...arguments);
+	}
+
+	/**
+	 * Creates a boolean parameter. Alias of OPC.toggle().
+	 *
+	 * Usage:
+	 *  - OPC.boolean('enabled', true)
+	 *  - OPC.boolean({ name:'enabled', value:true, label:'Enabled' })
+	 *  - OPC.myVar = OPC.boolean(true) // nameless descriptor form
+	 */
+	static boolean(variableNameOrConfigOrValue = true) {
+		if (OPC._isNameless(variableNameOrConfigOrValue)) {
+			return OPC._pending('toggle', typeof variableNameOrConfigOrValue === 'object' && variableNameOrConfigOrValue !== null
+				? { ...variableNameOrConfigOrValue }
+				: { value: !!variableNameOrConfigOrValue });
+		}
+		return OPC.toggle(...arguments);
+	}
+
+	/**
 	 * Creates a slider control for numeric values
-	 * 
-	 * @param {string|Object} variableNameOrConfig - Variable name or config object
+	 *
+	 * @param {string|Object|number} variableNameOrConfig - Variable name, config object,
+	 *   or (nameless form) the initial value: `OPC.speed = OPC.slider(5, 0, 10, 0.1)`
 	 * @param {number} value - Initial value
 	 * @param {number} [min=0] - Minimum value
 	 * @param {number} [max=null] - Maximum value (defaults to value * 2)
 	 * @param {number} [step=null] - Step increment (defaults to value / 10)
 	 * @returns {number} The current value of the slider
-	 * 
+	 *
 	 * @example
 	 * // Simple slider
 	 * let speed = OPC.slider('speed', 5, 0, 10, 0.1);
-	 * 
+	 *
 	 * // Using config object
 	 * let opacity = OPC.slider({
 	 *   name: 'opacity',
@@ -52,6 +103,13 @@ class OPC {
 	 * });
 	 */
 	static slider(variableNameOrConfig, value, min = 0, max = null, step = null) {
+		if (OPC._isNameless(variableNameOrConfig)) {
+			//nameless form: (value, min?, max?, step?) or config without name.
+			//Returns a descriptor to be consumed by an `OPC.myVar = ...` assignment.
+			return OPC._pending('slider', typeof variableNameOrConfig === 'object' && variableNameOrConfig !== null && !Array.isArray(variableNameOrConfig)
+				? { ...variableNameOrConfig }
+				: { value: variableNameOrConfig, min: arguments[1] ?? 0, max: arguments[2] ?? null, step: arguments[3] ?? null });
+		}
 		let variableName, label, description;
 		if (typeof variableNameOrConfig === 'object') {
 			variableName = variableNameOrConfig.name;
@@ -85,15 +143,16 @@ class OPC {
 
 	/**
 	 * Creates a toggle (checkbox) control for boolean values
-	 * 
-	 * @param {string|Object} variableNameOrConfig - Variable name or config object
+	 *
+	 * @param {string|Object|boolean} variableNameOrConfig - Variable name, config object,
+	 *   or (nameless form) the initial value: `OPC.showGrid = OPC.toggle(false)`
 	 * @param {boolean} [value=true] - Initial boolean value
 	 * @returns {boolean} The current state of the toggle
-	 * 
+	 *
 	 * @example
 	 * // Simple toggle
 	 * let showGrid = OPC.toggle('showGrid', false);
-	 * 
+	 *
 	 * // Using config object
 	 * let debugMode = OPC.toggle({
 	 *   name: 'debugMode',
@@ -103,6 +162,11 @@ class OPC {
 	 * });
 	 */
 	static toggle(variableNameOrConfig, value = true) {
+		if (OPC._isNameless(variableNameOrConfig)) {
+			return OPC._pending('toggle', typeof variableNameOrConfig === 'object' && variableNameOrConfig !== null && !Array.isArray(variableNameOrConfig)
+				? { ...variableNameOrConfig }
+				: { value: variableNameOrConfig ?? true });
+		}
 		let variableName, label, description;
 		if (typeof variableNameOrConfig === 'object') {
 			variableName = variableNameOrConfig.name;
@@ -129,19 +193,20 @@ class OPC {
 
 	/**
 	 * Creates a color palette selector control
-	 * 
-	 * @param {string|Object} variableNameOrConfig - Variable name or config object
+	 *
+	 * @param {string|Object|Array} variableNameOrConfig - Variable name, config object,
+	 *   or (nameless form) the options array: `OPC.colors = OPC.palette([['#f00','#0f0']])`
 	 * @param {Array} options - Array of color arrays or color options
 	 * @param {Array} [value=null] - Initial selected palette (defaults to first option)
 	 * @returns {Array} The currently selected color palette
-	 * 
+	 *
 	 * @example
 	 * // Simple palette
 	 * let colors = OPC.palette('colors', [
 	 *   ['#FF0000', '#00FF00', '#0000FF'],
 	 *   ['#FFFF00', '#FF00FF', '#00FFFF']
 	 * ]);
-	 * 
+	 *
 	 * // Using config object
 	 * let theme = OPC.palette({
 	 *   name: 'theme',
@@ -154,6 +219,13 @@ class OPC {
 	 * });
 	 */
 	static palette(variableNameOrConfig, options, value = null) {
+		if (OPC._isNameless(variableNameOrConfig)) {
+			if (Array.isArray(variableNameOrConfig)) {
+				//nameless positional form: (options, value?)
+				return OPC._pending('palette', { options: variableNameOrConfig, value: arguments[1] ?? null });
+			}
+			return OPC._pending('palette', { ...variableNameOrConfig });
+		}
 		let variableName, label, description;
 		if (typeof variableNameOrConfig === 'object') {
 			variableName = variableNameOrConfig.name;
@@ -181,15 +253,17 @@ class OPC {
 	}
 	/**
 	 * Creates a color picker control
-	 * 
-	 * @param {string|Object} variableNameOrConfig - Variable name or config object
+	 *
+	 * @param {string|Object} variableNameOrConfig - Variable name or config object.
+	 *   Nameless form uses a config object without a name: `OPC.c = OPC.color({value:'#ffaaaa'})`
+	 *   (or simply `OPC.c = '#ffaaaa'`)
 	 * @param {string} [value='#333333'] - Initial color value in hex format
 	 * @returns {string} The current color value
-	 * 
+	 *
 	 * @example
 	 * // Simple color picker
 	 * let bgColor = OPC.color('backgroundColor', '#FF0000');
-	 * 
+	 *
 	 * // Using config object
 	 * let strokeColor = OPC.color({
 	 *   name: 'strokeColor',
@@ -199,6 +273,9 @@ class OPC {
 	 * });
 	 */
 	static color(variableNameOrConfig, value = '#333333') {
+		if (OPC._isNameless(variableNameOrConfig)) {
+			return OPC._pending('color', { ...variableNameOrConfig });
+		}
 		let variableName, label, description;
 		if (typeof variableNameOrConfig === 'object') {
 			variableName = variableNameOrConfig.name;
@@ -225,17 +302,20 @@ class OPC {
 
 	/**
 	 * Creates a text input control
-	 * 
-	 * @param {string|Object} variableNameOrConfig - Variable name or config object
+	 *
+	 * @param {string|Object} variableNameOrConfig - Variable name or config object.
+	 *   Nameless form uses a config object without a name:
+	 *   `OPC.title = OPC.text({value:'My Artwork', placeholder:'Enter title...'})`
+	 *   (or simply `OPC.title = 'My Artwork'`)
 	 * @param {string} value - Initial text value
 	 * @param {string} [placeholder=null] - Placeholder text
 	 * @param {number} [maxChars=1000] - Maximum character limit
 	 * @returns {string} The current text value
-	 * 
+	 *
 	 * @example
 	 * // Simple text input
 	 * let title = OPC.text('title', 'My Artwork', 'Enter title...');
-	 * 
+	 *
 	 * // Using config object
 	 * let description = OPC.text({
 	 *   name: 'description',
@@ -247,6 +327,9 @@ class OPC {
 	 * });
 	 */
 	static text(variableNameOrConfig, value, placeholder = null, maxChars = 1000) {
+		if (OPC._isNameless(variableNameOrConfig)) {
+			return OPC._pending('text', { ...variableNameOrConfig });
+		}
 		let variableName, label, description;
 		if (typeof variableNameOrConfig === 'object') {
 			variableName = variableNameOrConfig.name;
@@ -275,15 +358,16 @@ class OPC {
 	}
 	/**
 	 * Creates a button control that can trigger actions
-	 * 
-	 * @param {string|Object} variableNameOrConfig - Variable name or config object
+	 *
+	 * @param {string|Object} variableNameOrConfig - Variable name or config object.
+	 *   Nameless form uses a config object without a name: `OPC.reset = OPC.button({value:'Reset Scene'})`
 	 * @param {string} [value=null] - Button label (defaults to variable name)
 	 * @returns {string} The button's current value/label
-	 * 
+	 *
 	 * @example
 	 * // Simple button
 	 * let resetBtn = OPC.button('reset', 'Reset Scene');
-	 * 
+	 *
 	 * // Using config object
 	 * let saveBtn = OPC.button({
 	 *   name: 'save',
@@ -293,6 +377,9 @@ class OPC {
 	 * });
 	 */
 	static button(variableNameOrConfig, value = null) {
+		if (OPC._isNameless(variableNameOrConfig)) {
+			return OPC._pending('button', { ...variableNameOrConfig });
+		}
 		let variableName, label, description;
 		if (typeof variableNameOrConfig === 'object') {
 			variableName = variableNameOrConfig.name;
@@ -320,23 +407,24 @@ class OPC {
 
 	/**
 	 * Creates a dropdown select control
-	 * 
-	 * @param {string|Object} variableNameOrConfig - Variable name or config object
+	 *
+	 * @param {string|Object|Array} variableNameOrConfig - Variable name, config object,
+	 *   or (nameless form) the options: `OPC.shape = OPC.select(['circle', 'square'])`
 	 * @param {Object|Array} options - Options object or array of values
 	 * @param {*} [value=null] - Initial selected value (defaults to first option)
 	 * @returns {*} The currently selected value
-	 * 
+	 *
 	 * @example
 	 * // Simple select with array
 	 * let shape = OPC.select('shape', ['circle', 'square', 'triangle']);
-	 * 
+	 *
 	 * // Select with object options
 	 * let quality = OPC.select('quality', {
 	 *   'Low': 1,
 	 *   'Medium': 2,
 	 *   'High': 3
 	 * });
-	 * 
+	 *
 	 * // Using config object
 	 * let blendMode = OPC.select({
 	 *   name: 'blendMode',
@@ -347,6 +435,18 @@ class OPC {
 	 * });
 	 */
 	static select(variableNameOrConfig, options, value = null) {
+		if (OPC._isNameless(variableNameOrConfig)) {
+			if (Array.isArray(variableNameOrConfig)) {
+				//nameless positional form: (options, value?)
+				return OPC._pending('select', { options: variableNameOrConfig, value: arguments[1] ?? null });
+			}
+			//an object without a name key is a config only if it carries an `options` key,
+			//otherwise it is an options map itself: OPC.select({'Low': 1, 'High': 2})
+			if ('options' in variableNameOrConfig) {
+				return OPC._pending('select', { ...variableNameOrConfig });
+			}
+			return OPC._pending('select', { options: variableNameOrConfig, value: arguments[1] ?? null });
+		}
 		let variableName, label, description;
 		if (typeof variableNameOrConfig === 'object') {
 			variableName = variableNameOrConfig.name;
@@ -376,16 +476,16 @@ class OPC {
 
 	/**
 	 * Creates a read-only label display
-	 * 
+	 *
 	 * @param {string} variableName - Variable name for the label
 	 * @param {*} [value=null] - Value to display
 	 * @param {string} [description=null] - Optional description
 	 * @returns {*} The current label value
-	 * 
+	 *
 	 * @example
 	 * // Simple label
 	 * let frameCount = OPC.label('frameCount', 0);
-	 * 
+	 *
 	 * // Label with description
 	 * let fps = OPC.label('fps', 60, 'Current frames per second');
 	 */
@@ -402,15 +502,15 @@ class OPC {
 
 	/**
 	 * Creates a title/heading display element
-	 * 
+	 *
 	 * @param {string} title - The title text to display
 	 * @param {string} [description=null] - Optional description text
 	 * @returns {string} The title text
-	 * 
+	 *
 	 * @example
 	 * // Simple title
 	 * OPC.title('Animation Settings');
-	 * 
+	 *
 	 * // Title with description
 	 * OPC.title('Color Controls', 'Adjust the color scheme of the artwork');
 	 */
@@ -427,28 +527,33 @@ class OPC {
 
 	/**
 	 * Creates an interactive Bézier curve editor for custom easing functions
-	 * 
-	 * @param {string} functionName - Name of the Bézier function variable
+	 *
+	 * @param {string|Array} functionName - Name of the Bézier function variable, or
+	 *   (nameless form) the anchors array: `OPC.myEase = OPC.bezier([{pX,pY,cX,cY}, ...])`
 	 * @param {Array} [anchors=null] - Array of anchor points with format [{pX, pY, cX, cY}, ...]
 	 *   - pX, pY: Point coordinates (0-1 range)
 	 *   - cX, cY: Control handle coordinates (0-1 range)
 	 * @returns {Function} Bézier function that takes t (0-1) and returns eased value (0-1)
-	 * 
+	 *
 	 * @example
 	 * // Default ease-in-out
 	 * let myBezier = OPC.bezier('myBezier');
-	 * 
+	 *
 	 * // Custom Bézier curve
 	 * let bounceBezier = OPC.bezier('bounceBezier', [
 	 *   { pX: 0, pY: 0, cX: 0.25, cY: 0.46 },
 	 *   { pX: 0.5, pY: 1.2, cX: 0.45, cY: 1.0 },
 	 *   { pX: 1, pY: 1, cX: 0.75, cY: 0.8 }
 	 * ]);
-	 * 
+	 *
 	 * // Usage in animation
 	 * let progress = myBezier(t); // t from 0 to 1
 	 */
-	static bezier(functionName, anchors = null) {
+	static bezier(functionName, anchors = null, stream = true) {
+		if (typeof functionName !== 'string') {
+			//nameless form: (anchors?, stream?)
+			return OPC._pending('bezier', { anchors: functionName ?? null, stream: anchors ?? true });
+		}
 		if (!anchors) { //set default to ease-in-out
 			anchors = [
 				{ pX: 0, pY: 0, cX: 0.42, cY: 0 },
@@ -465,7 +570,8 @@ class OPC {
 			type: 'bezier',
 			value: anchors,
 			marker: null,
-			description: null
+			description: null,
+			stream: stream
 		};
 		return this.initVariable(this.options[functionName]);
 	}
@@ -473,9 +579,95 @@ class OPC {
 	/* HELPER METHODS */
 
 	/**
+	 * True when a creator was called without a variable name: the first argument is a
+	 * value/options payload rather than a name string or a config object with a `name`.
+	 *
+	 * @private
+	 */
+	static _isNameless(arg) {
+		if (typeof arg === 'string') return false;
+		if (typeof arg === 'object' && arg !== null && !Array.isArray(arg) && 'name' in arg) return false;
+		return true;
+	}
+
+	/**
+	 * Builds a pending control descriptor. Returned by nameless creator calls and consumed
+	 * by a property assignment on the OPC proxy, which supplies the variable name:
+	 * `OPC.speed = OPC.slider(5, 0, 10, 0.1)`
+	 *
+	 * @private
+	 */
+	static _pending(type, config) {
+		return { __opcPending: true, type, config };
+	}
+
+	/**
+	 * Consumes a pending descriptor for the given variable name by re-entering the
+	 * original named creator (so URL param overrides etc. still apply).
+	 *
+	 * @private
+	 */
+	static _createFromPending(variableName, pending) {
+		if (pending.type === 'bezier') {
+			return OPC.bezier(variableName, pending.config.anchors, pending.config.stream);
+		}
+		return OPC[pending.type]({ ...pending.config, name: variableName });
+	}
+
+	/**
+	 * Creates a control for a raw value assigned to the OPC proxy, inferring the control
+	 * type from the value:
+	 *  - number → slider
+	 *  - boolean → toggle
+	 *  - '#hex' string → color picker
+	 *  - other string → text input
+	 *  - array of color arrays → palette
+	 *  - flat array of primitives → dropdown
+	 *  - plain {label: value} object → dropdown with those labels/values
+	 *
+	 * @private
+	 */
+	static _createInferred(variableName, value) {
+		if (typeof value === 'number') {
+			let min, max, step;
+			if (value === 0) {
+				min = 0; max = 1; step = 0.01;
+			} else {
+				min = Math.min(0, value * 2);
+				max = Math.max(0, value * 2);
+				step = Math.abs(value) / 10;
+			}
+			return OPC.slider({ name: variableName, value, min, max, step });
+		}
+		if (typeof value === 'boolean') {
+			return OPC.toggle({ name: variableName, value });
+		}
+		if (typeof value === 'string') {
+			if (/^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(value)) {
+				return OPC.color({ name: variableName, value });
+			}
+			return OPC.text({ name: variableName, value });
+		}
+		if (Array.isArray(value)) {
+			if (value.length > 0 && Array.isArray(value[0])) {
+				//array of color arrays → palette
+				return OPC.palette({ name: variableName, options: value });
+			}
+			//flat array of primitives → dropdown of those values
+			return OPC.select({ name: variableName, options: value });
+		}
+		if (value && typeof value === 'object') {
+			//plain { label: value } map → dropdown showing keys as labels, returning values
+			return OPC.select({ name: variableName, options: value });
+		}
+		throw new TypeError(`OPC.${variableName}: can not create a control from this value. ` +
+			`Assign a number, boolean, string, array, object, or a nameless creator like OPC.slider(5, 0, 10).`);
+	}
+
+	/**
 	 * Initializes a variable by creating a getter/setter property on the window object
 	 * and notifying the parent frame about the new control
-	 * 
+	 *
 	 * @private
 	 * @param {Object} option - The option configuration object
 	 * @returns {*} The initialized variable value
@@ -502,7 +694,7 @@ class OPC {
 
 	/**
 	 * Internal method to update a variable's value and notify listeners
-	 * 
+	 *
 	 * @private
 	 * @param {string} variableName - Name of the variable to update
 	 * @param {*} value - New value to set
@@ -517,14 +709,14 @@ class OPC {
 
 	/**
 	 * Programmatically sets the value of an OPC variable
-	 * 
+	 *
 	 * @param {string} variableName - Name of the variable to update
 	 * @param {*} value - New value to assign
-	 * 
+	 *
 	 * @example
 	 * // Update a slider value programmatically
 	 * OPC.set('speed', 7.5);
-	 * 
+	 *
 	 * // Update a toggle state
 	 * OPC.set('showGrid', true);
 	 */
@@ -534,7 +726,7 @@ class OPC {
 
 	/**
 	 * Handles button press events and triggers callback if defined
-	 * 
+	 *
 	 * @param {string} variableName - Name of the button variable
 	 * @param {*} value - Button value/label
 	 */
@@ -546,7 +738,7 @@ class OPC {
 	}
 	/**
 	 * Handles button release events and triggers callback if defined
-	 * 
+	 *
 	 * @param {string} variableName - Name of the button variable
 	 * @param {*} value - Button value/label
 	 */
@@ -564,7 +756,7 @@ class OPC {
 		OPC.collapsed = true;
 		OPC.callParentFunction('OPC_collapsed', OPC.collapsed);
 	}
-	
+
 	/**
 	 * Expands the OPC control panel UI
 	 */
@@ -602,7 +794,7 @@ class OPC {
 
 	/**
 	 * Sends messages to the parent frame (OPC UI)
-	 * 
+	 *
 	 * @private
 	 * @param {string} functionName - Name of the function/event to call
 	 * @param {*} [arg] - Data to pass with the message
@@ -619,7 +811,7 @@ class OPC {
 
 	/**
 	 * Converts easing anchor points into a smooth easing function using Bézier curves
-	 * 
+	 *
 	 * @private
 	 * @param {Object} option - The ease option configuration
 	 * @param {Array} option.value - Array of anchor points [{pX, pY, cX, cY}, ...]
@@ -757,14 +949,17 @@ class OPC {
 
 		// Return easing function: y = f(t) where t in [0,1] is interpreted as x
 		return function ease(t) {
+			// Stream marker updates to parent only when enabled for this bezier option.
+			// Evaluated on every call so it can be toggled at runtime.
+			const stream = OPC.options[option.name].stream;
 			const x = clamp01(+t || 0);
 			// exact boundaries
 			if (x <= segments[0].p1x) {
-				OPC.callParentFunction('OPC_bezier_marker', { name: option.name, x: segments[0].p1x, y: segments[0].p1y });
+				stream && OPC.callParentFunction('OPC_bezier_marker', { name: option.name, x: segments[0].p1x, y: segments[0].p1y });
 				return segments[0].p1y;
 			}
 			if (x >= segments.at(-1).p2x) {
-				OPC.callParentFunction('OPC_bezier_marker', { name: option.name, x: segments.at(-1).p2x, y: segments.at(-1).p2y });
+				stream && OPC.callParentFunction('OPC_bezier_marker', { name: option.name, x: segments.at(-1).p2x, y: segments.at(-1).p2y });
 				return segments.at(-1).p2y;
 			}
 
@@ -773,7 +968,7 @@ class OPC {
 			const tt = solveTforX(seg, x);
 			const result = evalCubic(seg.p1x, seg.p1y, seg.c1x, seg.c1y, seg.c2x, seg.c2y, seg.p2x, seg.p2y, tt);
 			// Send marker position once per bezier function call
-			OPC.callParentFunction('OPC_bezier_marker', { name: option.name, x: result[0], y: result[1] });
+			stream && OPC.callParentFunction('OPC_bezier_marker', { name: option.name, x: result[0], y: result[1] });
 			return result[1];
 		};
 	}
@@ -782,14 +977,14 @@ class OPC {
 
 	/**
 	 * Sets up OSC (Open Sound Control) integration for remote control of OPC variables
-	 * 
+	 *
 	 * @param {string} server - WebSocket server URL (e.g., 'ws://localhost')
 	 * @param {number} [port=null] - Optional port number
-	 * 
+	 *
 	 * @example
 	 * // Connect to OSC server
 	 * OPC.setOSC('ws://localhost', 8080);
-	 * 
+	 *
 	 * // Now OPC variables can be controlled via OSC messages
 	 * // Send OSC message to /speed with value 7.5 to update speed slider
 	 */
@@ -816,7 +1011,7 @@ class OPC {
 
 	/**
 	 * Initializes the OSC WebSocket connection and sets up message handlers
-	 * 
+	 *
 	 * @private
 	 * @param {string} server - WebSocket server URL
 	 * @param {number} [port=null] - Optional port number
@@ -876,17 +1071,17 @@ class OPC {
 	}
 	/**
 	 * Sends an OSC message with the specified variable name and value
-	 * 
+	 *
 	 * @param {string} varName - Name of the variable (becomes OSC address)
 	 * @param {*} value - Value to send (automatically typed for OSC)
-	 * 
+	 *
 	 * @example
 	 * // Send a float value
 	 * OPC.oscSendMessage('speed', 5.5);
-	 * 
+	 *
 	 * // Send a boolean (converted to integer)
 	 * OPC.oscSendMessage('enabled', true); // sends 1
-	 * 
+	 *
 	 * // Send an array (converted to comma-separated string)
 	 * OPC.oscSendMessage('colors', ['#FF0000', '#00FF00']);
 	 */
@@ -912,4 +1107,68 @@ class OPC {
 	}
 
 
-}
+	}
+
+	/* PROXY LAYER
+	 *
+	 * The global `OPC` is a Proxy around the class above. It enables the direct
+	 * property API (`OPC.speed = 5` creates a slider, `OPC.speed` reads the value)
+	 * while protecting the built-in methods from being overwritten.
+	 *
+	 * Note: the class binding `OPC` above is scoped to this IIFE, so the library's own
+	 * `OPC.xyz = ...` writes go straight to the class and never hit these traps.
+	 */
+
+	//built-in members that user code must not overwrite
+	const RESERVED_NAMES = new Set(
+		Object.getOwnPropertyNames(OPC).filter(name => typeof OPC[name] === 'function')
+	);
+	//internal state the library itself owns; assignable without creating controls
+	const INTERNAL_NAMES = new Set(['options', 'collapsed', 'osc', 'prototype', 'name', 'length']);
+
+	const opcProxyHandler = {
+		set(target, prop, value) {
+			if (typeof prop === 'symbol' || INTERNAL_NAMES.has(prop) || prop.startsWith('_')) {
+				return Reflect.set(target, prop, value);
+			}
+			if (RESERVED_NAMES.has(prop)) {
+				throw new TypeError(`OPC.${prop} is a built-in OPC function and can not be overwritten.`);
+			}
+			if (value && typeof value === 'object' && value.__opcPending === true) {
+				//consume a descriptor returned by a nameless creator call:
+				//OPC.speed = OPC.slider(5, 0, 10, 0.1)
+				target._createFromPending(prop, value);
+				return true;
+			}
+			if (Object.prototype.hasOwnProperty.call(target.options, prop)) {
+				//existing control: update its value instead of recreating it
+				target.set(prop, value);
+				return true;
+			}
+			target._createInferred(prop, value);
+			return true;
+		},
+		get(target, prop) {
+			if (typeof prop === 'symbol' || prop in target) {
+				return Reflect.get(target, prop);
+			}
+			if (Object.prototype.hasOwnProperty.call(target.options, prop)) {
+				//route through the window getter so beziers return their ease function
+				return window[prop];
+			}
+			return undefined;
+		},
+		has(target, prop) {
+			return prop in target || (typeof prop === 'string' && Object.prototype.hasOwnProperty.call(target.options, prop));
+		},
+		deleteProperty(target, prop) {
+			if (typeof prop === 'string' && Object.prototype.hasOwnProperty.call(target.options, prop)) {
+				target.delete(prop);
+				return true;
+			}
+			return Reflect.deleteProperty(target, prop);
+		}
+	};
+
+	window.OPC = new Proxy(OPC, opcProxyHandler);
+})();
